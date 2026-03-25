@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS PDV - Sistema de Gestão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-backdrop" style="display: flex; justify-content: center; align-items: center; height: 100vh; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);">
+    
+    <div class="login-container" style="display: flex; width: 900px; height: 550px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+        
+        <div class="login-col-esquerda" style="flex: 1; background: #1d3557;">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                 alt="Nexus PDV" 
+                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
+        </div>
+
+        <div class="login-col-direita" style="flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: #f8f9fc;">
+            
+            <div id="form-login">
+                <h1 style="font-size: 2rem; margin-bottom: 10px; font-family: 'Michroma', sans-serif;">NEXUS PDV</h1>
+                <p style="color: #666; margin-bottom: 30px;">Acesse sua conta para operar</p>
+                
+                <input type="text" id="user-login" placeholder="Usuário" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <input type="password" id="pass-login" placeholder="Senha" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                
+                <button id="btn-entrar" onclick="fazerLogin()" style="width: 100%; padding: 12px; background: #1d3557; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+                    ENTRAR NO SISTEMA
+                </button>
+                
+                <p style="margin-top: 20px; font-size: 0.9rem;">
+                    Não tem conta? <a href="javascript:void(0)" onclick="alternarFormularios('cadastro')" style="color: #1d3557; font-weight: bold;">Cadastre-se</a>
+                </p>
+            </div>
+
+            <div id="form-cadastro" style="display: none;">
+                <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 5px;">NOVO OPERADOR</h2>
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">O ID será gerado automaticamente.</p>
+                
+                <input type="text" id="novo-nome-usuario" placeholder="Nome Completo" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <input type="text" id="novo-usuario" placeholder="Nome de Usuário (Login)" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <input type="password" id="nova-senha" placeholder="Senha de Acesso" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                
+                <select id="novo-cargo-usuario" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; background: white;">
+                    <option value="operador">Operador</option>
+                    <option value="admin">Administrador</option>
+                </select>
+
+                <button id="btn-cadastrar" onclick="cadastrarNovoUsuario()" style="width: 100%; padding: 12px; background: #1d3557; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+                    FINALIZAR CADASTRO
+                </button>
+                
+                <p style="margin-top: 20px; font-size: 0.9rem;">
+                    Já possui conta? <a href="javascript:void(0)" onclick="alternarFormularios('login')" style="color: #1d3557; font-weight: bold;">Voltar ao Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div id="menu-container">
+    <button id="btn-menu-sanduiche" onmouseenter="toggleMenu()" style="background: none; box-shadow: none; padding: 0; position: fixed; top: 25px; left: 25px; z-index: 16001;">
+        <span style="display: block; width: 30px; height: 3px; background: #1d3557; margin-bottom: 5px; transition: 0.3s;"></span>
+        <span style="display: block; width: 30px; height: 3px; background: #1d3557; margin-bottom: 5px; transition: 0.3s;"></span>
+        <span style="display: block; width: 30px; height: 3px; background: #1d3557; transition: 0.3s;"></span>
+    </button>
+</div>
+
+<div id="painel-lateral" onmouseleave="fecharMenuLateral()">
+    <div style="padding: 80px 25px 40px 25px;">
+        <h2 style="font-family: 'Michroma', sans-serif; font-size: 1rem; color: white; margin-bottom: 5px;">NEXUS PDV</h2>
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 30px;">Gestão Inteligente</p>
+        
+        <div style="margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+            <p style="font-size: 0.7rem; color: #457b9d; margin-bottom: 5px; text-transform: uppercase;">OPERADOR ATUAL</p>
+            <strong id="nome-menu" style="color: white; font-size: 1.2rem;">---</strong><br>
+            <small id="cargo-menu" style="color: rgba(255,255,255,0.8);">---</small>
+        </div>
+
+        <div class="item-menu" onclick="fecharMenuLateral()">🏠 Início</div>
+        <div class="item-menu" onclick="abrirEstoque()">📦 Estoque</div>
+        
+        <div id="aba-admin" class="escondido">
+            <div class="item-menu" onclick="gerarRelatorioVendas()">📊 Relatório Geral</div>
+            <div class="item-menu" onclick="abrirGerenciamentoUsuarios()">👥 Gestão de Equipe</div>
+        </div>
+
+        <div class="item-menu" onclick="fazerLogout()" style="margin-top: 50px; background: rgba(230, 57, 70, 0.2); color: #ffb3b3;">🚪 Sair do Sistema</div>
+    </div>
+</div>
+
+    <div id="dashboard-admin" class="escondido" style="width: 95%; max-width: 1200px; margin: 0 auto; padding-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <h1>DASHBOARD</h1>
+            <button class="btn-voltar-vendas" onclick="irParaVendas()">IR PARA VENDAS →</button>
+        </div>
+
+        <div class="grid-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="card-nexus-dash" onclick="abrirRelatorioFaturamento()" style="cursor: pointer;">
+                <small>FATURAMENTO TOTAL</small>
+                <h3>R$ <span id="dash-faturamento">0.00</span></h3>
+            </div>
+            <div class="card-nexus-dash" onclick="abrirRelatorioVendasDetalhado()" style="cursor: pointer;">
+                <small>VENDAS REALIZADAS</small>
+                <h3><span id="dash-qtd-vendas">0</span></h3>
+            </div>
+            <div class="card-nexus-dash" onclick="abrirRelatorioItensVendidos()" style="cursor: pointer;">
+                <small>ITENS VENDIDOS</small>
+                <h3><span id="dash-estoque-critico">0</span></h3>
+            </div>
+            <div class="card-nexus-dash" onclick="abrirModalFornecedores()" style="cursor: pointer;">
+                <div style="font-size: 1.5rem;">📦</div>
+                <h3 style="font-family: 'Michroma', sans-serif; font-size: 1rem;">FORNECEDORES</h3>
+                <p style="font-size: 0.75rem;">Gerenciar contatos</p>
+            </div>
+            <div class="card-nexus-dash" onclick="abrirModalCadastroUsuarios()" style="cursor: pointer;">
+    <div style="font-size: 1.5rem; margin-bottom: 10px;">👤+</div>
+    <h3 style="margin: 0; font-size: 1rem; color: #1d3557; font-family: 'Michroma', sans-serif;">CADASTRAR OPERADOR</h3>
+    <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Adicionar novos usuários ao sistema</p>
+</div>
+        </div>
+    </div>
+
+    </div>
+
+<div id="modal-relatorios-dash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: white; width: 90%; max-width: 850px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 85vh; overflow: hidden; display: flex; flex-direction: column;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+            <h2 id="titulo-relatorio" style="color: #1d3557; font-size: 1.2rem;">DETALHES</h2>
+            <button onclick="document.getElementById('modal-relatorios-dash').style.display='none'" style="background: #c0392b; color: white; padding: 5px 15px; border-radius: 5px; font-size: 0.8rem;">FECHAR</button>
+        </div>
+
+        <div id="filtros-relatorio" style="margin-bottom: 15px; display: flex; gap: 10px;"></div>
+
+        <div id="conteudo-relatorio" style="overflow-y: auto; flex-grow: 1;">
+            </div>
+    </div>
+</div>
+
+<div id="modal-fornecedores" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
+        <div style="background:white; padding:20px; border-radius:15px; width:90%; max-width:800px; max-height:80vh; overflow-y:auto; position:relative; color: #333;">
+            <span onclick="fecharModalFornecedores()" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:28px; font-weight:bold;">&times;</span>
+            <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px;">Agenda de Fornecedores</h2>
+            
+            <div style="background:#f1f4f8; padding:15px; border-radius:10px; margin-bottom:20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <input type="text" id="forn-nome" placeholder="Nome" style="padding:10px; border-radius:5px; border:1px solid #ccc; flex: 1;">
+                <input type="text" id="forn-zap" placeholder="WhatsApp" style="padding:10px; border-radius:5px; border:1px solid #ccc; flex: 1;">
+                <input type="text" id="forn-categoria" placeholder="Categoria" style="padding:10px; border-radius:5px; border:1px solid #ccc; flex: 1;">
+                <button onclick="cadastrarFornecedor()" style="background:#1d3557; color:white; border:none; padding:10px 25px; border-radius:5px; cursor:pointer;">Salvar</button>
+            </div>
+
+            <div id="container-lista-fornecedores" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;"></div>
+        </div> 
+    </div>
+
+    <div id="modal-cadastro-usuarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
+    <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:500px; position:relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+        
+        <span onclick="fecharModalCadastroUsuarios()" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px; font-weight:bold; color: #333;">&times;</span>
+        
+        <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 25px; font-size: 1.2rem;">NOVO OPERADOR</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME COMPLETO</label>
+                <input type="text" id="cad-nome-completo" placeholder="Ex: João Silva" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+            </div>
+
+            <div>
+                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME DE USUÁRIO (LOGIN)</label>
+                <input type="text" id="cad-username" placeholder="Ex: joao.nexus" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+            </div>
+
+            <div>
+                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">SENHA DE ACESSO</label>
+                <input type="password" id="cad-password" placeholder="Digite a senha" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+            </div>
+
+            <div>
+                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NÍVEL DE ACESSO</label>
+                <select id="cad-cargo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 5px;">
+                    <option value="operador">Operador (Vendas e Estoque)</option>
+                    <option value="admin">Administrador (Total)</option>
+                </select>
+            </div>
+
+            <button onclick="salvarNovoOperador()" style="background:#1d3557; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; font-weight: bold; font-family: 'Montserrat', sans-serif; margin-top: 10px; transition: 0.3s;">
+                FINALIZAR CADASTRO
+            </button>
+        </div>
+    </div>
+</div>
+
+    <div id="container-principal" class="container-principal escondido">
+        <div class="coluna-esquerda">
+            <h1>NEXUS PDV</h1>
+            <div class="busca-container">
+                <input type="text" id="codigoBusca" placeholder="Código ou nome do produto..." oninput="buscarProduto()">
+                <button onclick="buscarProduto()">BUSCAR</button>
+            </div>
+            <div id="resultado"></div>
+            <div id="areaCadastro" style="display: none;">
+                <h3 style="color: #1d3557;">Cadastrar Produto</h3>
+                <input type="text" id="novoNome" placeholder="Nome do produto">
+                <input type="text" id="novaDesc" placeholder="Descrição">
+                <input type="number" id="novoPreco" placeholder="Preço (0.00)">
+                <button onclick="salvarNovoProduto()">SALVAR</button>
+            </div>
+        </div>
+
+        <div class="coluna-direita">
+    <div class="carrinho-container">
+        <h2 style="margin-top: 0; border-bottom: 2px solid #1d3557; padding-bottom: 10px;">Carrinho</h2>
+        <div id="itens-carrinho">
+            <p style="color: #888;">O carrinho está vazio.</p>
+        </div>
+        <div class="total-venda">
+            <strong>TOTAL: R$ <span id="valor-total">0.00</span></strong>
+        </div>
+        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="finalizarVenda()" id="btn-finalizar">FINALIZAR VENDA (F2)</button>
+            <button onclick="limparCarrinho()" style="width: 100%;">LIMPAR TUDO</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-autorizacao" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: none; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px;">🔒 AUTORIZAÇÃO</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 15px; color: #666;">Ação restrita ao Administrador.</p>
+        
+        <input type="text" id="auth-id-admin" placeholder="ID do Admin (ex: 001)" style="width: 100%; margin-bottom: 10px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+        <input type="password" id="auth-senha-admin" placeholder="Senha do Admin" style="width: 100%; margin-bottom: 20px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="confirmar-auth" style="flex: 2; background: #1d3557; color: white;">CONFIRMAR</button>
+            <button onclick="fecharModalAuth()" style="flex: 1; background: #eee; color: #333;">VOLTAR</button>
+        </div>
+    </div>
+</div>
+
+    <div id="modal-pagamento" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; display: none; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 20px; width: 450px;">
+            <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 25px;">PAGAMENTO</h2>
+            
+            <p style="font-size: 1.2rem;">Total a Pagar: <strong>R$ <span id="modal-total-venda">0.00</span></strong></p>
+            
+            <label>Forma de Pagamento:</label>
+            <div style="margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <label>
+        <input type="radio" name="forma-pagto" value="Dinheiro" checked onclick="selecionarFormaPagamento('Dinheiro')"> 💵 Dinheiro
+    </label>
+    <label>
+        <input type="radio" name="forma-pagto" value="Cartão Débito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Débito
+    </label>
+    <label>
+        <input type="radio" name="forma-pagto" value="Cartão Crédito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Crédito
+    </label>
+    <label>
+        <input type="radio" name="forma-pagto" value="Pix" onclick="selecionarFormaPagamento('Pix')"> 📱 Pix
+    </label>
+</div>
+
+            <div id="secao-troco">
+                <label>Valor Pago pelo Cliente:</label>
+                <input type="number" id="valor-pago-cliente" style="width: 100%;" oninput="calcularTroco()">
+                <p style="margin-top: 10px; color: #2ecc71; font-weight: bold;">Troco: R$ <span id="valor-troco">0.00</span></p>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <button onclick="finalizarVendaComBaixa()" class="btn-confirmar-venda" style="flex: 2; background: #2ecc71; color: white;">CONFIRMAR VENDA</button>
+                <button onclick="fecharModalPagamento()" style="flex: 1; background: #eee; color: #333; box-shadow: none;">VOLTAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-estoque">
+        <div class="estoque-content">
+            <div class="estoque-header">
+                <h2 style="font-family: 'Michroma', sans-serif; margin: 0;">CONTROLE DE ESTOQUE</h2>
+                <input type="text" id="busca-estoque" placeholder="Filtrar produtos..." oninput="filtrarEstoque()" style="width: 250px; margin: 0;">
+                <button onclick="fecharModalEstoque()" style="background: #e74c3c; padding: 8px 15px;">X</button>
+            </div>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cód</th>
+                            <th>Produto</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Status</th>
+                            <th class="coluna-admin">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-estoque">
+                        </tbody>
+                </table>
+            </div>
+            <div id="rodape-estoque-admin" style="padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end;">
+                <button class="btn-salvar" onclick="abrirNovoProduto()">+ ADICIONAR NOVO PRODUTO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-form-produto">
+        <div class="form-produto-content">
+            <h2 id="titulo-form-produto">Novo Produto</h2>
+            <input type="hidden" id="edit-index">
+            
+            <label>Código do Produto (ID):</label>
+            <input type="text" id="prod-id-form">
+            
+            <label>Nome do Produto:</label>
+            <input type="text" id="prod-nome-form">
+            
+            <label>Preço de Venda:</label>
+            <input type="number" id="prod-preco-form" step="0.01">
+            
+            <label>Quantidade em Estoque:</label>
+            <input type="number" id="prod-estoque-form">
+
+            <div class="form-actions">
+                <button class="btn-cancelar" onclick="fecharFormProduto()">CANCELAR</button>
+                <button class="btn-salvar" onclick="salvarProdutoNexus()">SALVAR PRODUTO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="info-operador" class="escondido">
+        <div style="background: #1d3557; width: 12px; height: 12px; border-radius: 50%;"></div>
+        <span>OPERADOR: <span id="nome-operador-final">---</span></span>
+    </div>
+
+    <div id="modal-relatorios-dash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 20px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px;">
+            <h2 id="titulo-relatorio" style="color: #1d3557; margin: 0; font-family: 'Michroma', sans-serif; font-size: 1.2rem;">RELATÓRIO</h2>
+            <button onclick="document.getElementById('modal-relatorios-dash').style.display='none'" style="background: #e63946; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">FECHAR [X]</button>
+        </div>
+
+        <div id="filtros-relatorio"></div>
+
+        <div id="conteudo-relatorio" style="overflow-y: auto; flex-grow: 1; padding-top: 10px;">
+            </div>
+    </div>
+</div>
+
+    <div id="relogio-brasilia"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

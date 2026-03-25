@@ -1,0 +1,531 @@
+/* --- Reset e Bases --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f1f4f8;
+    color: #333;
+    overflow-x: hidden;
+}
+
+h1, h2, h3 {
+    font-family: 'Michroma', sans-serif;
+    color: #1d3557;
+}
+
+/* --- Sistema de Utilitários --- */
+.escondido {
+    display: none !important;
+}
+
+/* --- Tela de Login --- */
+#login-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f1f4f8;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CONTAINER PRINCIPAL: Centraliza e divide em 2 colunas */
+.login-container {
+    display: flex; /* É isso que cria as duas colunas */
+    width: 900px;
+    height: 550px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    overflow: hidden; /* Garante que as bordas da imagem acompanhem o container */
+}
+
+/* COLUNA ESQUERDA (IMAGEM) */
+.login-col-esquerda {
+    flex: 1; /* Pega metade do espaço */
+    background: #1d3557;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-col-esquerda img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Faz a imagem preencher o espaço sem distorcer */
+    opacity: 0.8; /* Um leve escurecimento para dar contraste ao NEXUS */
+}
+
+/* COLUNA DIREITA (FORMULÁRIO) */
+.login-col-direita {
+    flex: 1; /* Pega a outra metade */
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #f8f9fc; /* Fundo levemente cinza */
+}
+
+.login-col-direita input {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* --- Menu Lateral --- */
+/* Estado inicial do menu (recolhido) */
+#painel-lateral {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Começa escondido */
+    width: 280px;
+    height: 100%;
+    background: #1d3557;
+    transition: left 0.4s ease; /* Animação suave ao abrir/fechar */
+    z-index: 16000;
+}
+
+#painel-lateral.menu-aberto {
+    left: 0; /* Desliza para a tela */
+}
+
+.item-menu {
+    color: white;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+.item-menu:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* --- Botão Sanduíche --- */
+#btn-menu-sanduiche {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    z-index: 16000;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: none;
+    background: none;
+}
+
+#btn-menu-sanduiche span {
+    width: 30px;
+    height: 3px;
+    background: #1d3557;
+    border-radius: 10px;
+}
+
+/* --- Dashboard --- */
+.grid-dashboard {
+    display: grid;
+    /* Define 3 colunas no PC. No celular, o 'auto-fit' que fizemos antes resolve */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; /* Isso garante a distância igual em todos os lados */
+    align-items: start;
+}
+
+.card-nexus-dash {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-left: 5px solid #1d3557; /* A borda azul que você já usa */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 120px;
+    box-sizing: border-box; /* Fundamental para o alinhamento das bordas */
+}
+
+.barra-progresso {
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.barra-progresso div {
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* --- Layout Principal (PDV) --- */
+.container-principal {
+    display: flex;
+    gap: 30px;
+    padding: 40px;
+    margin-top: 60px;
+}
+
+.coluna-esquerda { flex: 2; }
+.coluna-direita { flex: 1; }
+
+.busca-container input {
+    width: 70%;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #eee;
+    font-size: 1rem;
+}
+
+/* --- Botões --- */
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 800;
+    font-family: 'Montserrat', sans-serif;
+    transition: transform 0.2s, background 0.2s;
+    background: #1d3557;
+    color: white;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* --- Tabela de Estoque --- */
+.tabela-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* --- Status de Estoque --- */
+.status-estoque {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-bom { background: #d4edda; color: #155724; }
+.status-baixo { background: #fff3cd; color: #856404; }
+.status-vazio { background: #f8d7da; color: #721c24; }
+
+/* --- Modais --- */
+#modal-estoque, #modal-form-produto {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 17000;
+}
+
+.estoque-content, .form-produto-content {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 20px;
+    padding: 30px;
+    animation: slideUp 0.3s ease-out;
+}
+
+.form-produto-content {
+    max-width: 500px;
+}
+
+.form-produto-content input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 20px 0;
+    border: 2px solid #eee;
+    border-radius: 10px;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- Rodapé e Infos --- */
+#info-operador {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+#relogio-brasilia {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: bold;
+}
+
+/* --- Impressão --- */
+@media print {
+    body * { visibility: hidden; }
+    #area-impressao-nota, #area-impressao-nota *, 
+    #area-relatorio-impressao, #area-relatorio-impressao * {
+        visibility: visible;
+    }
+    #area-impressao-nota, #area-relatorio-impressao {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+
+span[onclick]:hover {
+    color: #457b9d !important;
+}
+
+/* --- Estilização das Tabelas de Relatório (Dashboard) --- */
+.tabela-relatorio {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+}
+
+.tabela-relatorio th {
+    background-color: #1d3557;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    position: sticky; /* Deixa o topo fixo ao rolar */
+    top: 0;
+    z-index: 10;
+}
+
+.tabela-relatorio td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+}
+
+/* Efeito Zebra: Linhas alternadas */
+.tabela-relatorio tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.tabela-relatorio tbody tr:hover {
+    background-color: #edf2f7; /* Destaque ao passar o mouse */
+    transition: 0.2s;
+}
+
+/* Estilo para os Filtros no topo do Modal */
+.container-filtros-relatorio {
+    display: flex;
+    gap: 15px;
+    background: #f1f4f8;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.container-filtros-relatorio select, 
+.container-filtros-relatorio input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Estilo das Tabelas de Relatórios */
+.tabela-relatorio {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Montserrat', sans-serif;
+    background: white;
+}
+
+.tabela-relatorio th {
+    background-color: #1d3557;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.tabela-relatorio td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+/* Efeito Zebra para facilitar a leitura */
+.tabela-relatorio tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.tabela-relatorio tbody tr:hover {
+    background-color: #f1f4f8;
+}
+
+/* Estilo para a área de filtros no topo */
+.container-filtros-relatorio {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f1f4f8;
+    padding: 15px;
+    border-radius: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.container-filtros-relatorio input, 
+.container-filtros-relatorio select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Container dos Cards de Fornecedores */
+.grid-fornecedores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* Card Individual de Fornecedor */
+.card-fornecedor {
+    background: #ffffff;
+    border-left: 5px solid #1d3557; /* Cor principal do Nexus */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-fornecedor:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Tipografia dentro do Card */
+.card-fornecedor h4 {
+    margin: 0 0 5px 0;
+    color: #1d3557;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.card-fornecedor p {
+    margin: 5px 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.card-fornecedor .badge-produtos {
+    display: inline-block;
+    background: #f1f4f8;
+    color: #457b9d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Botão de WhatsApp Estilizado */
+.btn-whatsapp-forn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #25d366;
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+}
+
+.btn-whatsapp-forn:hover {
+    background-color: #128c7e;
+}
+
+/* Botão de Adicionar Novo (Destaque) */
+.btn-add-fornecedor {
+    background: #1d3557;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: filter 0.2s;
+}
+
+.btn-add-fornecedor:hover {
+    filter: brightness(1.2);
+}
+
