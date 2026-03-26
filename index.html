@@ -37,22 +37,23 @@
                 </p>
             </div>
 
-            <div id="form-cadastro" style="display: none;">
-                <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 5px;">NOVO OPERADOR</h2>
-                <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">O ID será gerado automaticamente.</p>
-                
-                <input type="text" id="novo-nome-usuario" placeholder="Nome Completo" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                <input type="text" id="novo-usuario" placeholder="Nome de Usuário (Login)" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                <input type="password" id="nova-senha" placeholder="Senha de Acesso" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                
-                <select id="novo-cargo-usuario" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; background: white;">
-                    <option value="operador">Operador</option>
-                    <option value="admin">Administrador</option>
-                </select>
+           <div id="form-cadastro" style="display: none;">
+    <h1 style="font-size: 1.5rem; margin-bottom: 10px; font-family: 'Michroma', sans-serif;">CRIAR CONTA</h1>
+    <p style="color: #666; margin-bottom: 20px;">Preencha os dados abaixo</p>
+    
+    <input type="text" id="novo-nome-usuario" placeholder="Nome Completo" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+    <input type="text" id="novo-usuario" placeholder="Usuário (Login)" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+    <input type="password" id="nova-senha" placeholder="Senha" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+    
+    <select id="novo-cargo-usuario" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; background: white;">
+        <option value="operador">Operador</option>
+        <option value="admin">Administrador</option>
+    </select>
 
-                <button id="btn-cadastrar" onclick="cadastrarNovoUsuario()" style="width: 100%; padding: 12px; background: #1d3557; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                    FINALIZAR CADASTRO
-                </button>
+    <button onclick="cadastrarNovoUsuario()" style="width: 100%; padding: 12px; background: #1d3557; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+        FINALIZAR CADASTRO
+    </button>
+</div>
                 
                 <p style="margin-top: 20px; font-size: 0.9rem;">
                     Já possui conta? <a href="javascript:void(0)" onclick="alternarFormularios('login')" style="color: #1d3557; font-weight: bold;">Voltar ao Login</a>
