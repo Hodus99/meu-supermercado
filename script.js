@@ -1,19 +1,20 @@
 /* --- Variáveis de Estado Global --- */
+let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios")) || [];
 let produtos = JSON.parse(localStorage.getItem("produtos_pdv")) || [
-    { id: "1", nome: "Arroz", preco: 5.00, estoque: 20 },
-    { id: "2", nome: "Feijão", preco: 7.50, estoque: 20 },
-    { id: "3", nome: "Macarrão", preco: 4.00, estoque: 20 },
+    { id: "1", nome: "Arroz", descricao: "Arroz integral", preco: 5.00, estoque: 20 },
+    { id: "2", nome: "Feijão", descricao: "Feijão preto", preco: 7.50, estoque: 20 },
+    { id: "3", nome: "Macarrão", descricao: "Macarrão parafuso", preco: 4.00, estoque: 20 },
 ];
 
-let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+let ultimaVendaRealizada = null;
 let operadorLogado = JSON.parse(localStorage.getItem("operador_atual")) || null;
 let historicoVendas = JSON.parse(localStorage.getItem("vendas")) || []; 
-let fornecedores = JSON.parse(localStorage.getItem("fornecedores_nexus")) || [];
 let carrinho = []; 
 let totalVenda = 0;
 let acaoPendente = null;
 
-let ultimaVendaRealizada = null;
+// Inicializa o array de fornecedores buscando do localStorage ou vazio
+let fornecedores = JSON.parse(localStorage.getItem("fornecedores_nexus")) || [];
 
 // Função para salvar sempre que houver alteração
 function salvarFornecedores() {
@@ -152,30 +153,36 @@ function atualizarCarrinhoVisual() {
 }
 
 // LOGICA DE SEGURANÇA PARA ALTERAR ITENS
-/* --- SEGURANÇA E AUTORIZAÇÃO --- */
-
 function solicitarAlteracao(index, tipo) {
-    // Verifica se o admin Master está logado
-    if (operadorLogado && operadorLogado.role === "admin") {
+    const operador = JSON.parse(localStorage.getItem("operador_atual"));
+    
+    // Se o próprio Yran (Admin) estiver logado, libera sem pedir senha
+    if (operador && operador.role === "admin") {
         executarAcao(index, tipo);
     } else {
+        // Se for operador (teste), abre o modal de autorização
         acaoPendente = { index, tipo };
         document.getElementById("modal-autorizacao").style.display = "flex";
         document.getElementById("auth-id-admin").focus();
     }
 }
 
+// BOTÃO DE CONFIRMAR DO MODAL DE SENHA
+// BOTÃO CONFIRMAR DO MODAL DE SENHA
+// BOTÃO CONFIRMAR DO MODAL DE AUTORIZAÇÃO
 document.getElementById("confirmar-auth").onclick = function() {
     const idDigitada = document.getElementById("auth-id-admin").value;
     const senhaDigitada = document.getElementById("auth-senha-admin").value;
     
-    // Busca na chave unificada
-    let usuarios = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+    // Tenta buscar em qualquer uma das chaves possíveis
+    const lista1 = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const lista2 = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+    const todosUsuarios = [...lista1, ...lista2];
 
-    const supervisor = usuarios.find(u => 
-        (u.id === idDigitada || u.login === idDigitada) && 
+    const supervisor = todosUsuarios.find(u => 
+        u.id === idDigitada && 
         u.senha === senhaDigitada && 
-        u.role === "admin"
+        (u.role === "admin" || u.role === "ADMIN")
     );
 
     if (supervisor) {
@@ -183,7 +190,9 @@ document.getElementById("confirmar-auth").onclick = function() {
         executarAcao(acaoPendente.index, acaoPendente.tipo);
         fecharModalAuth();
     } else {
-        alert("Acesso Negado: Requer senha de Administrador!");
+        alert("ID ou Senha de Administrador inválida!");
+        document.getElementById("auth-id-admin").value = "";
+        document.getElementById("auth-senha-admin").value = "";
     }
 };
 
@@ -397,61 +406,49 @@ function alternarFormularios(tipo) {
     }
 }
 
-// 1. FUNÇÃO PARA A TELA DE LOGIN (IDs: novo-nome-usuario, novo-usuario, nova-senha)
 function cadastrarNovoUsuario() {
-    const nome = document.getElementById('novo-nome-usuario').value;
-    const user = document.getElementById('novo-usuario').value;
-    const senha = document.getElementById('nova-senha').value;
-    const cargo = document.getElementById('novo-cargo-usuario').value;
+    const nomeCompleto = document.getElementById("novo-nome-usuario").value;
+    const usuarioLogin = document.getElementById("novo-usuario").value;
+    const senhaAcesso = document.getElementById("nova-senha").value;
 
-    salvarLogicaUnificada(nome, user, senha, cargo, 'login');
-}
+    if (nomeCompleto && usuarioLogin && senhaAcesso) {
+        // 1. Verifica se o login já existe para não duplicar
+        const existe = usuariosCadastrados.find(u => u.username === usuarioLogin);
+        if (existe) {
+            alert("Este nome de usuário já está em uso!");
+            return;
+        }
 
-// 2. FUNÇÃO PARA O MODAL DO DASHBOARD (IDs: cad-nome-completo, cad-username, cad-password)
-function salvarNovoOperador() {
-    const nome = document.getElementById('cad-nome-completo').value;
-    const user = document.getElementById('cad-username').value;
-    const senha = document.getElementById('cad-password').value;
-    const cargo = document.getElementById('cad-cargo').value;
+        // 2. LÓGICA DE ID AUTOMÁTICO (001, 002, 003...)
+        // Pegamos o maior ID atual, transformamos em número e somamos +1
+        let novoIdNum = 1;
+        if (usuariosCadastrados.length > 0) {
+            const ids = usuariosCadastrados.map(u => parseInt(u.id) || 0);
+            novoIdNum = Math.max(...ids) + 1;
+        }
+        // O padStart(3, '0') garante que o número 1 vire "001"
+        const idGerado = novoIdNum.toString().padStart(3, '0');
 
-    salvarLogicaUnificada(nome, user, senha, cargo, 'dashboard');
-}
+        // 3. Define o cargo (Primeiro a cadastrar é sempre ADMIN)
+        const cargo = usuariosCadastrados.length === 0 ? "admin" : "operador";
 
-/* --- SISTEMA DE ACESSO (O "Coração" do Problema) --- */
-
-function salvarLogicaUnificada(nome, user, senha, role, origem) {
-    if (!nome || !user || !senha) {
-        alert("Preencha todos os campos!");
-        return;
-    }
-
-    // Sempre buscar a lista atualizada antes de salvar
-    let usuarios = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
-
-    if (usuarios.find(u => u.login === user)) {
-        alert("Este usuário já existe!");
-        return;
-    }
-
-    // Objeto padronizado para evitar erros de undefined
-    const novoUsuario = { 
-        id: Date.now().toString(), // ID único
-        nome: nome, 
-        login: user, 
-        senha: senha, 
-        role: role.toLowerCase() // Garante 'admin' ou 'operador'
-    };
-
-    usuarios.push(novoUsuario);
-    localStorage.setItem("usuarios_nexus", JSON.stringify(usuarios));
-    usuariosCadastrados = usuarios; // Atualiza variável global
-
-    alert(`Usuário ${nome} cadastrado como ${role}!`);
-
-    if (origem === 'login') {
+        // 4. Salva o novo objeto com o campo ID incluso
+        usuariosCadastrados.push({ 
+            id: idGerado, // Novo campo adicionado aqui!
+            nome: nomeCompleto, 
+            username: usuarioLogin, 
+            senha: senhaAcesso,
+            role: cargo
+        });
+        
+        // 5. Atualiza o banco local
+        localStorage.setItem('usuarios', JSON.stringify(usuariosCadastrados));
+        
+        alert(`Sucesso! ${nomeCompleto} cadastrado como ${cargo.toUpperCase()}.\nSeu ID de acesso é: ${idGerado}`);
+        
         alternarFormularios('login');
     } else {
-        fecharModalCadastroUsuarios();
+        alert("Por favor, preencha todos os campos!");
     }
 }
 
@@ -460,12 +457,13 @@ function fazerLogin() {
     const senhaDigitada = document.getElementById('pass-login').value;
 
     let usuarios = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+
+    // Busca o usuário na lista
     const usuarioEncontrado = usuarios.find(u => u.login === userDigitado && u.senha === senhaDigitada);
 
     if (usuarioEncontrado) {
-        localStorage.setItem("operador_atual", JSON.stringify(usuarioEncontrado));
-        operadorLogado = usuarioEncontrado;
-        fazerLoginAutomatico(usuarioEncontrado);
+        // Lógica para abrir o sistema...
+        alert("Bem-vindo, " + usuarioEncontrado.nome);
     } else {
         alert("Usuário ou senha incorretos!");
     }
@@ -634,9 +632,7 @@ function atualizarRelogio() {
 }
 
 setInterval(atualizarRelogio, 1000);
-// Inicialização
 window.onload = () => {
-    correcaoGeralAcesso();
     atualizarRelogio();
     verificarLoginSalvo();
 };
@@ -706,8 +702,6 @@ function editarProduto(id) {
     document.getElementById("modal-form-produto").style.display = "flex";
 }
 
-/* --- ESTOQUE E PRODUTOS --- */
-
 function salvarProdutoNexus() {
     const idOriginal = document.getElementById("edit-index").value;
     const novoDados = {
@@ -721,12 +715,13 @@ function salvarProdutoNexus() {
         produtos.push(novoDados);
     } else {
         const index = produtos.findIndex(p => p.id === idOriginal);
-        if (index !== -1) produtos[index] = novoDados;
+        produtos[index] = novoDados;
     }
 
     localStorage.setItem("produtos_pdv", JSON.stringify(produtos));
     fecharFormProduto();
     abrirEstoque();
+    alert("Produto salvo!");
 }
 
 function fecharFormProduto() { document.getElementById("modal-form-produto").style.display = "none"; }
@@ -750,23 +745,34 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-/* --- FUNÇÃO DE AUTO-REPARO (Rodar ao iniciar) --- */
+// FORÇAR CRIAÇÃO DO ADMIN MASTER (Execute uma vez para destravar)
 function correcaoGeralAcesso() {
+    // 1. Definimos o seu perfil mestre atualizado
     const seuPerfilMaster = {
         id: "001",
         nome: "Yran Sousa Paixão",
-        login: "yran_nexus", 
-        senha: "95362748", 
+        username: "yran_nexus", 
+        senha: "95362748", // Sua senha nova
         role: "admin"
     };
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+    // 2. Atualizamos TODAS as chaves que o sistema pode estar usando
+    const chavesParaLimpar = ['usuarios', 'usuarios_nexus', 'usuariosCadastrados'];
     
-    // Se você não estiver na lista, o sistema te adiciona
-    if (!usuarios.find(u => u.login === "yran_nexus")) {
-        usuarios.push(seuPerfilMaster);
-        localStorage.setItem("usuarios_nexus", JSON.stringify(usuarios));
-    }
+    chavesParaLimpar.forEach(chave => {
+        let lista = JSON.parse(localStorage.getItem(chave)) || [];
+        
+        // Remove qualquer versão antiga sua pelo username ou ID
+        lista = lista.filter(u => u.username !== "yran_nexus" && u.id !== "001");
+        
+        // Adiciona a versão com a senha nova
+        lista.push(seuPerfilMaster);
+        
+        // Salva de volta na chave correspondente
+        localStorage.setItem(chave, JSON.stringify(lista));
+    });
+
+    console.log("✅ Acesso do Yran (001) atualizado em todo o sistema!");
 }
 
 // Executa a limpeza
@@ -979,5 +985,41 @@ function fecharModalCadastroUsuarios() {
     document.getElementById('cad-password').value = "";
 }
 
+function salvarNovoOperador() {
+    const nome = document.getElementById('cad-nome-completo').value.trim();
+    const user = document.getElementById('cad-username').value.trim();
+    const pass = document.getElementById('cad-password').value.trim();
+    const cargo = document.getElementById('cad-cargo').value;
 
+    // Validação simples
+    if (!nome || !user || !pass) {
+        alert("Por favor, preencha todos os campos!");
+        return;
+    }
+
+    // Puxa a lista de usuários já cadastrados ou cria uma nova
+    let usuariosSistema = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+
+    // Verifica se o login já existe para não duplicar
+    const usuarioExiste = usuariosSistema.find(u => u.login === user);
+    if (usuarioExiste) {
+        alert("Este nome de usuário já está em uso!");
+        return;
+    }
+
+    // Cria o novo objeto de usuário
+    const novoUsuario = {
+        nome: nome,
+        login: user,
+        senha: pass,
+        cargo: cargo
+    };
+
+    // Adiciona ao array e salva no localStorage
+    usuariosSistema.push(novoUsuario);
+    localStorage.setItem("usuarios_nexus", JSON.stringify(usuariosSistema));
+
+    alert(`Operador ${nome} cadastrado com sucesso!`);
+    fecharModalCadastroUsuarios();
+}
 
