@@ -1,5 +1,6 @@
 /* --- Variáveis de Estado Global --- */
-let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios")) || [];
+let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 let produtos = JSON.parse(localStorage.getItem("produtos_pdv")) || [
     { id: "1", nome: "Arroz", descricao: "Arroz integral", preco: 5.00, estoque: 20 },
     { id: "2", nome: "Feijão", descricao: "Feijão preto", preco: 7.50, estoque: 20 },
@@ -452,20 +453,37 @@ function cadastrarNovoUsuario() {
     }
 }
 
+// FUNÇÃO DE LOGIN (A ALTERAÇÃO QUE VOCÊ PRECISAVA)
 function fazerLogin() {
-    const userDigitado = document.getElementById('user-login').value;
-    const senhaDigitada = document.getElementById('pass-login').value;
+    const userDigitado = document.getElementById("login-input").value.trim();
+    const senhaDigitada = document.getElementById("senha-input").value.trim();
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+    // Busca em todas as chaves possíveis para garantir que te ache
+    const lista1 = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+    const lista2 = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const todosUsuarios = [...lista1, ...lista2];
 
-    // Busca o usuário na lista
-    const usuarioEncontrado = usuarios.find(u => u.login === userDigitado && u.senha === senhaDigitada);
+    // Procura o usuário (Validando tanto 'login' quanto 'username')
+    const usuarioValidado = todosUsuarios.find(u => 
+        (u.login === userDigitado || u.username === userDigitado) && 
+        (u.senha === senhaDigitada)
+    );
 
-    if (usuarioEncontrado) {
-        // Lógica para abrir o sistema...
-        alert("Bem-vindo, " + usuarioEncontrado.nome);
+    if (usuarioValidado) {
+        // Salva quem está logado para o resto do sistema usar
+        localStorage.setItem("operador_atual", JSON.stringify(usuarioValidado));
+        alert("Acesso autorizado! Bem-vindo, " + usuarioValidado.nome);
+        window.location.href = "painel.html"; 
     } else {
         alert("Usuário ou senha incorretos!");
+    }
+}
+
+function verificarLoginSalvo() {
+    const salvo = localStorage.getItem("operador_atual");
+    if (salvo) {
+        // Se já estiver logado, pode pular direto para o painel
+        window.location.href = "painel.html";
     }
 }
 
@@ -487,36 +505,7 @@ function atualizarDadosDashboard() {
     document.getElementById("dash-estoque-critico").innerText = itensCriticos;
 }
 
-function fazerLoginAutomatico(usuario) {
-    const backdrop = document.getElementById('login-backdrop');
-    const dash = document.getElementById("dashboard-admin");
-    const pdv = document.getElementById("container-principal");
-    const infoOp = document.getElementById("info-operador");
-
-    // Correção: Exibir nome do operador logado
-    if (document.getElementById("nome-operador-final")) {
-        document.getElementById("nome-operador-final").innerText = usuario.nome;
-        infoOp.classList.remove("escondido");
-    }
-
-    if (usuario.role === "admin") {
-        dash.classList.remove("escondido");
-        pdv.classList.add("escondido");
-        atualizarDadosDashboard();
-    } else {
-        dash.classList.add("escondido");
-        pdv.classList.remove("escondido");
-    }
-
-    backdrop.style.display = 'none';
-}
-
-function verificarLoginSalvo() {
-    const salvo = localStorage.getItem("operador_atual");
-    if (salvo) {
-        fazerLoginAutomatico(JSON.parse(salvo));
-    }
-}
+// Restante da sua lógica de PDV (Vendas, Carrinho, etc) continua aqui...
 
 function fazerLogout() {
     localStorage.removeItem("operador_atual");
@@ -985,41 +974,37 @@ function fecharModalCadastroUsuarios() {
     document.getElementById('cad-password').value = "";
 }
 
+// --- JS PARTE II: GESTÃO E INTERFACE ---
+
 function salvarNovoOperador() {
     const nome = document.getElementById('cad-nome-completo').value.trim();
     const user = document.getElementById('cad-username').value.trim();
     const pass = document.getElementById('cad-password').value.trim();
     const cargo = document.getElementById('cad-cargo').value;
 
-    // Validação simples
     if (!nome || !user || !pass) {
         alert("Por favor, preencha todos os campos!");
         return;
     }
 
-    // Puxa a lista de usuários já cadastrados ou cria uma nova
     let usuariosSistema = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
 
-    // Verifica se o login já existe para não duplicar
-    const usuarioExiste = usuariosSistema.find(u => u.login === user);
-    if (usuarioExiste) {
+    // Verificação de duplicidade
+    if (usuariosSistema.find(u => u.login === user)) {
         alert("Este nome de usuário já está em uso!");
         return;
     }
 
-    // Cria o novo objeto de usuário
     const novoUsuario = {
         nome: nome,
-        login: user,
+        login: user, // Salvando como 'login' para padronizar
         senha: pass,
-        cargo: cargo
+        role: cargo  // 'role' é o padrão que o restante do seu código usa para Admin
     };
 
-    // Adiciona ao array e salva no localStorage
     usuariosSistema.push(novoUsuario);
     localStorage.setItem("usuarios_nexus", JSON.stringify(usuariosSistema));
 
     alert(`Operador ${nome} cadastrado com sucesso!`);
     fecharModalCadastroUsuarios();
 }
-
