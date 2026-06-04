@@ -1,6 +1,5 @@
 /* --- Variáveis de Estado Global --- */
 let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 let produtos = JSON.parse(localStorage.getItem("produtos_pdv")) || [
     { id: "1", nome: "Arroz", descricao: "Arroz integral", preco: 5.00, estoque: 20 },
     { id: "2", nome: "Feijão", descricao: "Feijão preto", preco: 7.50, estoque: 20 },
@@ -13,11 +12,8 @@ let historicoVendas = JSON.parse(localStorage.getItem("vendas")) || [];
 let carrinho = []; 
 let totalVenda = 0;
 let acaoPendente = null;
-
-// Inicializa o array de fornecedores buscando do localStorage ou vazio
 let fornecedores = JSON.parse(localStorage.getItem("fornecedores_nexus")) || [];
 
-// Função para salvar sempre que houver alteração
 function salvarFornecedores() {
     localStorage.setItem("fornecedores_nexus", JSON.stringify(fornecedores));
 }
@@ -27,6 +23,8 @@ function buscarProduto() {
     const termo = document.getElementById("codigoBusca").value;
     const divResultado = document.getElementById("resultado");
     const divCadastro = document.getElementById("areaCadastro");
+
+    if (!divResultado || !divCadastro) return;
 
     if (termo === "") {
         divResultado.innerHTML = "";
@@ -67,10 +65,10 @@ function salvarNovoProduto() {
             nome: nomeNovo,
             descricao: descricaoNovo,
             preco: precoNovo,
-            estoque: 10 // Valor padrão inicial
+            estoque: 10
         });
         
-        localStorage.setItem("produtos_pdv", JSON.stringify(produtos)); // Corrigido para produtos_pdv
+        localStorage.setItem("produtos_pdv", JSON.stringify(produtos));
         alert("Produto cadastrado com sucesso!");
 
         document.getElementById("novoNome").value = "";
@@ -102,10 +100,9 @@ function adicionarAoCarrinho(id) {
             return;
         }
 
-        // Verifica se o item já existe no carrinho para somar a quantidade em vez de duplicar
         const itemExistente = carrinho.find(item => item.id === id);
         if (itemExistente) {
-            itemExistente.quantidade += quantidade;
+            itemExistente.quantidade += grandmother;
             itemExistente.subtotal = itemExistente.quantidade * itemExistente.precoUnitario;
         } else {
             carrinho.push({
@@ -117,22 +114,20 @@ function adicionarAoCarrinho(id) {
             });
         }
 
-        atualizarCarrinhoVisual(); // Chama a nova função de desenho
+        atualizarCarrinhoVisual();
     }
 }
 
-// NOVA FUNÇÃO: Desenha o carrinho e calcula o total
 function atualizarCarrinhoVisual() {
     const listaCarrinho = document.getElementById("itens-carrinho");
+    if (!listaCarrinho) return;
     listaCarrinho.innerHTML = "";
     
-    // IMPORTANTE: Sem o "let" para usar a variável global
     totalVenda = 0; 
 
     carrinho.forEach((item, index) => {
         totalVenda += item.subtotal;
         
-        // Aqui adicionamos os botões de EDITAR e EXCLUIR
         listaCarrinho.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
                 <span><strong>${item.quantidade}x</strong> ${item.nome}</span>
@@ -144,58 +139,58 @@ function atualizarCarrinhoVisual() {
             </div>`;
     });
 
-    document.getElementById("valor-total").innerText = totalVenda.toFixed(2);
+    const valTotal = document.getElementById("valor-total");
+    if (valTotal) valTotal.innerText = totalVenda.toFixed(2);
     
     if (carrinho.length === 0) {
         listaCarrinho.innerHTML = "<p style='color: #888;'>O carrinho está vazio.</p>";
         totalVenda = 0;
-        document.getElementById("valor-total").innerText = "0.00";
+        if (valTotal) valTotal.innerText = "0.00";
     }
 }
 
-// LOGICA DE SEGURANÇA PARA ALTERAR ITENS
 function solicitarAlteracao(index, tipo) {
     const operador = JSON.parse(localStorage.getItem("operador_atual"));
     
-    // Se o próprio Yran (Admin) estiver logado, libera sem pedir senha
-    if (operador && operador.role === "admin") {
+    if (operador && (operador.role === "admin" || operador.role === "ADMIN")) {
         executarAcao(index, tipo);
     } else {
-        // Se for operador (teste), abre o modal de autorização
         acaoPendente = { index, tipo };
-        document.getElementById("modal-autorizacao").style.display = "flex";
-        document.getElementById("auth-id-admin").focus();
+        const modalAuth = document.getElementById("modal-autorizacao");
+        if (modalAuth) modalAuth.style.display = "flex";
+        const inputAuthId = document.getElementById("auth-id-admin");
+        if (inputAuthId) inputAuthId.focus();
     }
 }
 
-// BOTÃO DE CONFIRMAR DO MODAL DE SENHA
-// BOTÃO CONFIRMAR DO MODAL DE SENHA
-// BOTÃO CONFIRMAR DO MODAL DE AUTORIZAÇÃO
-document.getElementById("confirmar-auth").onclick = function() {
-    const idDigitada = document.getElementById("auth-id-admin").value;
-    const senhaDigitada = document.getElementById("auth-senha-admin").value;
-    
-    // Tenta buscar em qualquer uma das chaves possíveis
-    const lista1 = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const lista2 = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
-    const todosUsuarios = [...lista1, ...lista2];
+/* --- Configuração do clique de autorização --- */
+const btnConfirmarAuth = document.getElementById("confirmar-auth");
+if (btnConfirmarAuth) {
+    btnConfirmarAuth.onclick = function() {
+        const idDigitada = document.getElementById("auth-id-admin").value;
+        const senhaDigitada = document.getElementById("auth-senha-admin").value;
+        
+        const lista1 = JSON.parse(localStorage.getItem("usuarios")) || [];
+        const lista2 = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+        const todosUsuarios = [...lista1, ...lista2];
 
-    const supervisor = todosUsuarios.find(u => 
-        u.id === idDigitada && 
-        u.senha === senhaDigitada && 
-        (u.role === "admin" || u.role === "ADMIN")
-    );
+        const supervisor = todosUsuarios.find(u => 
+            u.id === idDigitada && 
+            u.senha === senhaDigitada && 
+            (u.role === "admin" || u.role === "ADMIN")
+        );
 
-    if (supervisor) {
-        alert(`Autorizado por: ${supervisor.nome}`);
-        executarAcao(acaoPendente.index, acaoPendente.tipo);
-        fecharModalAuth();
-    } else {
-        alert("ID ou Senha de Administrador inválida!");
-        document.getElementById("auth-id-admin").value = "";
-        document.getElementById("auth-senha-admin").value = "";
-    }
-};
+        if (supervisor) {
+            alert(`Autorizado por: ${supervisor.nome}`);
+            executarAcao(acaoPendente.index, acaoPendente.tipo);
+            fecharModalAuth();
+        } else {
+            alert("ID ou Senha de Administrador inválida!");
+            document.getElementById("auth-id-admin").value = "";
+            document.getElementById("auth-senha-admin").value = "";
+        }
+    };
+}
 
 function executarAcao(index, tipo) {
     if (tipo === 'delete') {
@@ -211,9 +206,12 @@ function executarAcao(index, tipo) {
 }
 
 function fecharModalAuth() {
-    document.getElementById("modal-autorizacao").style.display = "none";
-    document.getElementById("auth-id-admin").value = "";
-    document.getElementById("auth-senha-admin").value = "";
+    const modal = document.getElementById("modal-autorizacao");
+    if (modal) modal.style.display = "none";
+    const idAdmin = document.getElementById("auth-id-admin");
+    const senhaAdmin = document.getElementById("auth-senha-admin");
+    if (idAdmin) idAdmin.value = "";
+    if (senhaAdmin) senhaAdmin.value = "";
 }
 
 function limparCarrinho() {
@@ -228,11 +226,13 @@ function finalizarVenda() {
         return;
     }
 
-    // USA DIRETAMENTE A VARIÁVEL GLOBAL CORRETA
-    document.getElementById("modal-total-venda").innerText = totalVenda.toFixed(2);
-    document.getElementById("valor-pago-cliente").value = totalVenda.toFixed(2);
+    const modalTotal = document.getElementById("modal-total-venda");
+    const valorPago = document.getElementById("valor-pago-cliente");
+    const modalPagto = document.getElementById("modal-pagamento");
 
-    document.getElementById("modal-pagamento").style.display = "flex";
+    if (modalTotal) modalTotal.innerText = totalVenda.toFixed(2);
+    if (valorPago) valorPago.value = totalVenda.toFixed(2);
+    if (modalPagto) modalPagto.style.display = "flex";
 
     calcularTroco();
 }
@@ -240,17 +240,15 @@ function finalizarVenda() {
 function finalizarVendaComBaixa() {
     const valorDigitado = parseFloat(document.getElementById("valor-pago-cliente").value) || 0;
 
-    // 🔒 Validação de pagamento
     if (valorDigitado < totalVenda) {
         alert("O valor pago não pode ser menor que o total da venda!");
         return;
     }
 
-    // 🧾 MONTA OBJETO DA VENDA
     const venda = {
         id: Date.now(),
         data: new Date().toLocaleString(),
-        operador: typeof operadorLogado !== 'undefined' && operadorLogado ? operadorLogado.nome : "Sistema",
+        operador: operadorLogado ? operadorLogado.nome : "Sistema",
         itens: JSON.parse(JSON.stringify(carrinho)),
         total: totalVenda,
         valorPago: valorDigitado,
@@ -258,7 +256,6 @@ function finalizarVendaComBaixa() {
         formaPagto: document.querySelector('input[name="forma-pagto"]:checked')?.value || "Não informado"
     };
 
-    // 📦 ATUALIZA ESTOQUE
     carrinho.forEach(item => {
         const produto = produtos.find(p => p.id === item.id);
         if (produto) {
@@ -268,53 +265,38 @@ function finalizarVendaComBaixa() {
     });
 
     localStorage.setItem("produtos_pdv", JSON.stringify(produtos));
-
-    // 💾 SALVA HISTÓRICO
     historicoVendas.push(venda);
     localStorage.setItem("vendas", JSON.stringify(historicoVendas));
 
-    // ✅ MENSAGEM DE SUCESSO E PERGUNTA DE IMPRESSÃO
     alert("Venda finalizada com sucesso!");
 
-    // 🖨️ O CÓDIGO QUE VOCÊ PEDIU:
     const desejaImprimir = confirm("Deseja imprimir o cupom desta venda?");
     if (desejaImprimir) {
-        gerarNotaParaImpressao(venda); // Preenche a área de impressão
-        window.print();               // Dispara o comando de impressão do navegador
+        gerarNotaParaImpressao(venda);
     }
 
-    // 🧹 LIMPA CARRINHO E FECHA MODAL
     carrinho = [];
     totalVenda = 0;
-    if (typeof atualizarCarrinhoVisual === "function") {
-        atualizarCarrinhoVisual();
-    }
+    atualizarCarrinhoVisual();
     
-    document.getElementById("modal-pagamento").style.display = "none";
+    const modalPagto = document.getElementById("modal-pagamento");
+    if (modalPagto) modalPagto.style.display = "none";
 }
 
-// Gerencia o que acontece quando o usuário escolhe a forma de pagamento
 function selecionarFormaPagamento(tipo) {
     const secaoTroco = document.getElementById("secao-troco");
-    
-    // 1. Controle de Visibilidade do Troco
-    if (tipo === 'Dinheiro') {
-        secaoTroco.style.display = "block"; // Mostra campo de valor pago
-    } else {
-        secaoTroco.style.display = "none";  // Esconde em Cartão/Pix
+    if (secaoTroco) {
+        secaoTroco.style.display = tipo === 'Dinheiro' ? "block" : "none";
     }
 
-    // 2. Lógica de PIX
     if (tipo === 'Pix') {
         gerarQRCodePix();
     }
 }
 
-// Função para simular o QR Code (Pode ser um alerta ou abrir uma imagem)
 function gerarQRCodePix() {
     const valorParaPix = totalVenda.toFixed(2).replace(".", ",");
     alert(`💠 SISTEMA PIX\nValor: R$ ${valorParaPix}\n\nEscaneie o QR Code no monitor do cliente.`);
-    // Aqui no futuro você pode dar um .style.display = "block" em uma <img> de QR Code
 }
 
 function gerarNotaParaImpressao(venda) {
@@ -359,121 +341,51 @@ function gerarNotaParaImpressao(venda) {
     document.body.removeChild(divImpressao); 
 }
 
-// Fecha o modal quando clica em "Voltar"
 function fecharModalPagamento() {
-    document.getElementById("modal-pagamento").style.display = "none";
+    const modal = document.getElementById("modal-pagamento");
+    if (modal) modal.style.display = "none";
 }
 
-// Calcula o troco em tempo real enquanto o operador digita
 function calcularTroco() {
     const valorPago = parseFloat(document.getElementById("valor-pago-cliente").value) || 0;
     const troco = valorPago - totalVenda;
-
     const campoTroco = document.getElementById("valor-troco");
 
     if (campoTroco) {
-        campoTroco.innerText = troco > 0 
-            ? troco.toFixed(2).replace(".", ",") 
-            : "0,00";
+        campoTroco.innerText = troco > 0 ? troco.toFixed(2).replace(".", ",") : "0,00";
     }
 }
 
-// Esconde ou mostra o campo de troco (ex: se for Cartão, não precisa de troco)
-function toggleCampoTroco(mostrar) {
-    const secaoTroco = document.getElementById("secao-troco");
-    if (secaoTroco) {
-        secaoTroco.style.display = mostrar ? "block" : "none";
-    }
-}
-
-/* --- Sistema de Login e Usuários --- */
-function alternarFormularios(tipo) {
-    const formLogin = document.getElementById("form-login");
-    const formCadastro = document.getElementById("form-cadastro");
-
-    if (tipo === "cadastro") {
-        // Esconde o login e mostra o cadastro
-        formLogin.style.display = "none";
-        formCadastro.style.display = "block";
-        
-        // Limpa os campos de cadastro para não vir com dados antigos
-        document.getElementById("novo-nome-usuario").value = "";
-        document.getElementById("novo-usuario").value = "";
-        document.getElementById("nova-senha").value = "";
-    } else {
-        // Volta para o login
-        formLogin.style.display = "block";
-        formCadastro.style.display = "none";
-    }
-}
-
-function cadastrarNovoUsuario() {
-    const nomeCompleto = document.getElementById("novo-nome-usuario").value;
-    const usuarioLogin = document.getElementById("novo-usuario").value;
-    const senhaAcesso = document.getElementById("nova-senha").value;
-
-    if (nomeCompleto && usuarioLogin && senhaAcesso) {
-        // 1. Verifica se o login já existe para não duplicar
-        const existe = usuariosCadastrados.find(u => u.username === usuarioLogin);
-        if (existe) {
-            alert("Este nome de usuário já está em uso!");
-            return;
-        }
-
-        // 2. LÓGICA DE ID AUTOMÁTICO (001, 002, 003...)
-        // Pegamos o maior ID atual, transformamos em número e somamos +1
-        let novoIdNum = 1;
-        if (usuariosCadastrados.length > 0) {
-            const ids = usuariosCadastrados.map(u => parseInt(u.id) || 0);
-            novoIdNum = Math.max(...ids) + 1;
-        }
-        // O padStart(3, '0') garante que o número 1 vire "001"
-        const idGerado = novoIdNum.toString().padStart(3, '0');
-
-        // 3. Define o cargo (Primeiro a cadastrar é sempre ADMIN)
-        const cargo = usuariosCadastrados.length === 0 ? "admin" : "operador";
-
-        // 4. Salva o novo objeto com o campo ID incluso
-        usuariosCadastrados.push({ 
-            id: idGerado, // Novo campo adicionado aqui!
-            nome: nomeCompleto, 
-            username: usuarioLogin, 
-            senha: senhaAcesso,
-            role: cargo
-        });
-        
-        // 5. Atualiza o banco local
-        localStorage.setItem('usuarios', JSON.stringify(usuariosCadastrados));
-        
-        alert(`Sucesso! ${nomeCompleto} cadastrado como ${cargo.toUpperCase()}.\nSeu ID de acesso é: ${idGerado}`);
-        
-        alternarFormularios('login');
-    } else {
-        alert("Por favor, preencha todos os campos!");
-    }
-}
-
-// FUNÇÃO DE LOGIN (A ALTERAÇÃO QUE VOCÊ PRECISAVA)
+/* --- Sistema de Login e Painel Único (SPA) --- */
 function fazerLogin() {
-    const userDigitado = document.getElementById("login-input").value.trim();
-    const senhaDigitada = document.getElementById("senha-input").value.trim();
+    const inputUser = document.getElementById("user-login");
+    const inputPass = document.getElementById("pass-login");
 
-    // Busca em todas as chaves possíveis para garantir que te ache
+    if (!inputUser || !inputPass) return;
+
+    const userDigitado = inputUser.value.trim();
+    const senhaDigitada = inputPass.value.trim();
+
     const lista1 = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
     const lista2 = JSON.parse(localStorage.getItem("usuarios")) || [];
     const todosUsuarios = [...lista1, ...lista2];
 
-    // Procura o usuário (Validando tanto 'login' quanto 'username')
     const usuarioValidado = todosUsuarios.find(u => 
-        (u.login === userDigitado || u.username === userDigitado) && 
-        (u.senha === senhaDigitada)
+        (u.login === userDigitado || u.username === userDigitado) && u.senha === senhaDigitada
     );
 
     if (usuarioValidado) {
-        // Salva quem está logado para o resto do sistema usar
+        operadorLogado = usuarioValidado;
         localStorage.setItem("operador_atual", JSON.stringify(usuarioValidado));
         alert("Acesso autorizado! Bem-vindo, " + usuarioValidado.nome);
-        window.location.href = "painel.html"; 
+        
+        const backdrop = document.getElementById("login-backdrop");
+        const dash = document.getElementById("dashboard-admin");
+        
+        if (backdrop) backdrop.classList.add("escondido");
+        if (dash) dash.classList.remove("escondido");
+        
+        atualizarDadosDashboard();
     } else {
         alert("Usuário ou senha incorretos!");
     }
@@ -482,17 +394,40 @@ function fazerLogin() {
 function verificarLoginSalvo() {
     const salvo = localStorage.getItem("operador_atual");
     if (salvo) {
-        // Se já estiver logado, pode pular direto para o painel
-        window.location.href = "painel.html";
+        operadorLogado = JSON.parse(salvo);
+        const backdrop = document.getElementById("login-backdrop");
+        const dash = document.getElementById("dashboard-admin");
+        
+        if (backdrop) backdrop.classList.add("escondido");
+        if (dash) dash.classList.remove("escondido");
+        
+        atualizarDadosDashboard();
     }
+}
+
+function fazerLogout() {
+    localStorage.removeItem("operador_atual");
+    location.reload();
 }
 
 function irParaVendas() {
     const dash = document.getElementById("dashboard-admin");
-    const pdv = document.getElementById("container-principal");
-    dash.classList.add("escondido");
-    pdv.classList.remove("escondido");
-    document.getElementById("codigoBusca").focus();
+    const principal = document.getElementById("container-principal");
+    const busca = document.getElementById("codigoBusca");
+
+    if (dash) dash.classList.add("escondido");
+    if (principal) principal.classList.remove("escondido");
+    if (busca) busca.focus();
+}
+
+function irParaDashboard() {
+    const principal = document.getElementById("container-principal");
+    const dash = document.getElementById("dashboard-admin");
+
+    if (principal) principal.classList.add("escondido");
+    if (dash) dash.classList.remove("escondido");
+    
+    atualizarDadosDashboard();
 }
 
 function atualizarDadosDashboard() {
@@ -500,35 +435,33 @@ function atualizarDadosDashboard() {
     const totalPedidos = historicoVendas.length;
     const itensCriticos = produtos.filter(p => p.estoque <= 5).length;
 
-    document.getElementById("dash-faturamento").innerText = totalFaturamento.toFixed(2);
-    document.getElementById("dash-qtd-vendas").innerText = totalPedidos;
-    document.getElementById("dash-estoque-critico").innerText = itensCriticos;
+    const elemFaturamento = document.getElementById("dash-faturamento");
+    const elemQtdVendas = document.getElementById("dash-qtd-vendas");
+    const elemEstoqueCritico = document.getElementById("dash-estoque-critico");
+
+    if (elemFaturamento) elemFaturamento.innerText = totalFaturamento.toFixed(2);
+    if (elemQtdVendas) elemQtdVendas.innerText = totalPedidos;
+    if (elemEstoqueCritico) elemEstoqueCritico.innerText = itensCriticos;
 }
 
-// Restante da sua lógica de PDV (Vendas, Carrinho, etc) continua aqui...
-
-function fazerLogout() {
-    localStorage.removeItem("operador_atual");
-    location.reload();
-}
+/* --- Menu Lateral --- */
 function toggleMenu() {
     const painel = document.getElementById("painel-lateral");
     const spans = document.querySelectorAll("#btn-menu-sanduiche span");
     
-    // Abre o menu deslizando
+    if (!painel) return;
     painel.classList.add("menu-aberto");
-    
-    // Força o botão a ficar BRANCO (efeito negativo)
     spans.forEach(s => s.style.background = "#ffffff");
 
-    // Atualiza dados do operador no menu
-    const operador = JSON.parse(localStorage.getItem("operador_atual"));
-    if (operador) {
-        document.getElementById("nome-menu").innerText = operador.nome;
-        document.getElementById("cargo-menu").innerText = operador.role.toUpperCase();
-        
+    if (operadorLogado) {
+        const elemNome = document.getElementById("nome-menu");
+        const elemCargo = document.getElementById("cargo-menu");
         const abaAdmin = document.getElementById("aba-admin");
-        if (operador.role === "admin") {
+
+        if (elemNome) elemNome.innerText = operadorLogado.nome;
+        if (elemCargo) elemCargo.innerText = operadorLogado.role.toUpperCase();
+        
+        if (abaAdmin && (operadorLogado.role === "admin" || operadorLogado.role === "ADMIN")) {
             abaAdmin.classList.remove("escondido");
         }
     }
@@ -536,18 +469,13 @@ function toggleMenu() {
 
 function fecharMenuLateral() {
     const painel = document.getElementById("painel-lateral");
-    const spans = document.querySelectorAll("#btn-menu-sanduiche span");
-    
-    // Recolhe o menu
-    painel.classList.remove("menu-aberto");
-    
-    // Volta o botão para a cor original (Azul Nexus)
-    spans.forEach(s => s.style.background = "#1d3557");
+    if (painel) painel.classList.remove("menu-aberto");
+    document.querySelectorAll("#btn-menu-sanduiche span").forEach(s => s.style.background = "#1d3557");
 }
 
+/* --- Relatórios --- */
 function gerarRelatorioVendas() {
-    const userLogado = JSON.parse(localStorage.getItem("operador_atual"));
-    if (!userLogado || userLogado.role !== "admin") {
+    if (!operadorLogado || (operadorLogado.role !== "admin" && operadorLogado.role !== "ADMIN")) {
         alert("Acesso negado! Apenas administradores podem visualizar o relatório.");
         return;
     }
@@ -596,48 +524,130 @@ function gerarRelatorioVendas() {
     document.body.removeChild(divRelatorio);
 }
 
-function abrirGerenciamentoUsuarios() {
-    let listaHTML = "--- GESTÃO DE EQUIPE ---\n\n";
-    usuariosCadastrados.forEach((u, index) => {
-        listaHTML += `${index + 1}. ${u.nome} [${u.role.toUpperCase()}]\n`;
+function abrirRelatorioFaturamento() {
+    const tRelatorio = document.getElementById("titulo-relatorio");
+    const fRelatorio = document.getElementById("filtros-relatorio");
+
+    if (tRelatorio) tRelatorio.innerText = "FATURAMENTO POR OPERADOR";
+    if (fRelatorio) {
+        fRelatorio.innerHTML = `
+            <div class="container-filtros-relatorio">
+                <input type="date" id="data-inicio">
+                <span>até</span>
+                <input type="date" id="data-fim">
+                <select id="filtro-op">
+                    <option value="todos">Todos Operadores</option>
+                    ${[...new Set(historicoVendas.map(v => v.operador))].map(op => `<option value="${op}">${op}</option>`).join('')}
+                </select>
+                <button onclick="gerarTabelaFaturamento()">FILTRAR</button>
+            </div>
+        `;
+    }
+    gerarTabelaFaturamento();
+}
+
+function gerarTabelaFaturamento() {
+    const dInicio = document.getElementById("data-inicio")?.value;
+    const dFim = document.getElementById("data-fim")?.value;
+    const opSelecionado = document.getElementById("filtro-op")?.value;
+
+    const faturamentoPorOperador = historicoVendas.reduce((acc, venda) => {
+        const dataVenda = venda.data.split(',')[0].split('/').reverse().join('-'); 
+        if (dInicio && dataVenda < dInicio) return acc;
+        if (dFim && dataVenda > dFim) return acc;
+        if (opSelecionado !== "todos" && venda.operador !== opSelecionado) return acc;
+        
+        acc[venda.operador] = (acc[venda.operador] || 0) + (parseFloat(venda.total) || 0);
+        return acc;
+    }, {});
+
+    let html = `<table class='tabela-relatorio'><thead><tr><th>Operador</th><th>Total Acumulado</th></tr></thead><tbody>`;
+    for (let op in faturamentoPorOperador) {
+        html += `<tr><td><strong>${op}</strong></td><td>R$ ${faturamentoPorOperador[op].toFixed(2).replace(".", ",")}</td></tr>`;
+    }
+    html += "</tbody></table>";
+    mostrarModalRelatorio(html);
+}
+
+function abrirRelatorioItensVendidos() {
+    const tRelatorio = document.getElementById("titulo-relatorio");
+    const fRelatorio = document.getElementById("filtros-relatorio");
+
+    if (tRelatorio) tRelatorio.innerText = "DIAGNÓSTICO DE REPOSIÇÃO";
+    if (fRelatorio) fRelatorio.innerHTML = ""; 
+
+    const contagemItens = {};
+    historicoVendas.forEach(venda => {
+        venda.itens.forEach(item => {
+            contagemItens[item.nome] = (contagemItens[item.nome] || 0) + (parseFloat(item.quantidade) || 0);
+        });
     });
-    const acao = prompt(listaHTML + "\nDigite o NÚMERO do usuário para alterar o cargo:");
-    if (acao) {
-        const i = parseInt(acao) - 1;
-        if (usuariosCadastrados[i]) {
-            usuariosCadastrados[i].role = usuariosCadastrados[i].role === "admin" ? "operador" : "admin";
-            localStorage.setItem("usuarios", JSON.stringify(usuariosCadastrados));
-            alert("Cargo alterado!");
-            location.reload();
+
+    let html = `<table class='tabela-relatorio'><thead><tr><th>Produto</th><th>Vendidos</th><th>Estoque Atual</th><th>Status</th></tr></thead><tbody>`;
+    for (let produto in contagemItens) {
+        const prodNoEstoque = produtos.find(p => p.nome === produto);
+        const estoqueAtual = prodNoEstoque ? prodNoEstoque.estoque : 0;
+        const vendidos = contagemItens[produto];
+
+        let status = "<span style='color: green; font-weight: bold;'>✅ OK</span>";
+        if (estoqueAtual <= 0) {
+            status = "<span style='color: red; font-weight: bold;'>🚨 CRÍTICO (ZERADO)</span>";
+        } else if (estoqueAtual < vendidos) {
+            status = "<span style='color: orange; font-weight: bold;'>⚠️ REPOR EM BREVE</span>";
         }
+
+        html += `<tr><td>${produto}</td><td>${vendidos} un</td><td>${estoqueAtual} un</td><td>${status}</td></tr>`;
+    }
+    html += "</tbody></table>";
+    mostrarModalRelatorio(html);
+}
+
+function abrirRelatorioVendasDetalhado() {
+    const tRelatorio = document.getElementById("titulo-relatorio");
+    const fRelatorio = document.getElementById("filtros-relatorio");
+
+    if (tRelatorio) tRelatorio.innerText = "HISTÓRICO DETALHADO DE VENDAS";
+    if (fRelatorio) fRelatorio.innerHTML = ""; 
+
+    let html = `<table class='tabela-relatorio'><thead><tr><th>Data/Hora</th><th>Total</th><th>Forma Pgto</th><th>Troco</th></tr></thead><tbody>`;
+    [...historicoVendas].reverse().forEach(venda => {
+        html += `<tr>
+            <td>${venda.data}</td>
+            <td>R$ ${parseFloat(venda.total).toFixed(2).replace(".", ",")}</td>
+            <td>${venda.formaPagto}</td>
+            <td>R$ ${parseFloat(venda.troco || 0).toFixed(2).replace(".", ",")}</td>
+        </tr>`;
+    });
+    html += "</tbody></table>";
+    mostrarModalRelatorio(html);
+}
+
+function mostrarModalRelatorio(conteudo) {
+    const modal = document.getElementById("modal-relatorios-dash");
+    const container = document.getElementById("conteudo-relatorio");
+    if (modal && container) {
+        container.innerHTML = conteudo;
+        modal.style.display = "flex";
     }
 }
 
-function atualizarRelogio() {
-    const agora = new Date();
-    const dataHoraFormatada = agora.toLocaleString('pt-BR');
-    const pRelogio = document.getElementById("relogio-brasilia");
-    if (pRelogio) pRelogio.innerText = dataHoraFormatada;
+function fecharModalRelatorios() {
+    const modal = document.getElementById("modal-relatorios-dash");
+    if (modal) modal.style.display = "none";
 }
-
-setInterval(atualizarRelogio, 1000);
-window.onload = () => {
-    atualizarRelogio();
-    verificarLoginSalvo();
-};
 
 /* --- Gerenciamento de Estoque --- */
 function abrirEstoque() {
-    const userLogado = JSON.parse(localStorage.getItem("operador_atual"));
     const modal = document.getElementById("modal-estoque");
     const lista = document.getElementById("lista-estoque");
+    if (!modal || !lista) return;
+
     modal.style.display = "flex";
     lista.innerHTML = ""; 
 
-    const isAdmin = userLogado && userLogado.role === "admin";
-    const elementosAdmin = document.querySelectorAll(".coluna-admin");
-    elementosAdmin.forEach(el => el.style.display = isAdmin ? "table-cell" : "none");
-    document.getElementById("rodape-estoque-admin").style.display = isAdmin ? "flex" : "none";
+    const isAdmin = operadorLogado && (operadorLogado.role === "admin" || operadorLogado.role === "ADMIN");
+    const rodapeAdmin = document.getElementById("rodape-estoque-admin");
+    if (rodapeAdmin) rodapeAdmin.style.display = isAdmin ? "flex" : "none";
 
     produtos.forEach((prod) => {
         const tr = document.createElement("tr");
@@ -650,25 +660,24 @@ function abrirEstoque() {
             <td>R$ ${prod.preco.toFixed(2)}</td>
             <td>${prod.estoque} un</td>
             <td><span class="status-estoque ${statusClass}">${statusTexto}</span></td>
-            ${isAdmin ? `<td class="coluna-admin">
-                <button class="btn-ajuste btn-add" onclick="editarProduto('${prod.id}')">✏️</button>
-                <button class="btn-ajuste btn-remove" onclick="removerProduto('${prod.id}')">🗑️</button>
+            ${isAdmin ? `<td>
+                <button style="padding: 5px 10px; background: #f1c40f;" onclick="editarProduto('${prod.id}')">✏️</button>
+                <button style="padding: 5px 10px; background: #e63946;" onclick="removerProduto('${prod.id}')">🗑️</button>
             </td>` : ''}
         `;
         lista.appendChild(tr);
     });
 }
 
-function fecharModalEstoque() {
-    document.getElementById("modal-estoque").style.display = "none";
+function fecharModalEstoque() { 
+    const modal = document.getElementById("modal-estoque");
+    if (modal) modal.style.display = "none"; 
 }
 
 function filtrarEstoque() {
     const busca = document.getElementById("busca-estoque").value.toLowerCase();
-    const linhas = document.querySelectorAll("#lista-estoque tr");
-    linhas.forEach(linha => {
-        const txt = linha.innerText.toLowerCase();
-        linha.style.display = txt.includes(busca) ? "" : "none";
+    document.querySelectorAll("#lista-estoque tr").forEach(linha => {
+        linha.style.display = linea.innerText.toLowerCase().includes(busca) ? "" : "none";
     });
 }
 
@@ -713,201 +722,37 @@ function salvarProdutoNexus() {
     alert("Produto salvo!");
 }
 
-function fecharFormProduto() { document.getElementById("modal-form-produto").style.display = "none"; }
-function limparFormProduto() {
-    document.querySelectorAll(".form-produto-content input").forEach(i => i.value = "");
+function fecharFormProduto() { 
+    const modal = document.getElementById("modal-form-produto");
+    if (modal) modal.style.display = "none"; 
+}
+
+function limparFormProduto() { 
+    document.querySelectorAll(".form-produto-content input").forEach(i => i.value = ""); 
 }
 
 function removerProduto(id) {
-    if (confirm("Deseja excluir?")) {
+    if (confirm("Deseja excluir este produto?")) {
         produtos = produtos.filter(p => p.id !== id);
         localStorage.setItem("produtos_pdv", JSON.stringify(produtos));
         abrirEstoque();
     }
 }
 
-// ESCUTA GLOBAL DO TECLADO (F2 para Finalizar)
-document.addEventListener('keydown', function(event) {
-    if (event.key === "F2") {
-        event.preventDefault(); // Impede que o navegador abra a ajuda do Windows
-        finalizarVenda();
-    }
-});
-
-// FORÇAR CRIAÇÃO DO ADMIN MASTER (Execute uma vez para destravar)
-function correcaoGeralAcesso() {
-    // 1. Definimos o seu perfil mestre atualizado
-    const seuPerfilMaster = {
-        id: "001",
-        nome: "Yran Sousa Paixão",
-        username: "yran_nexus", 
-        senha: "95362748", // Sua senha nova
-        role: "admin"
-    };
-
-    // 2. Atualizamos TODAS as chaves que o sistema pode estar usando
-    const chavesParaLimpar = ['usuarios', 'usuarios_nexus', 'usuariosCadastrados'];
-    
-    chavesParaLimpar.forEach(chave => {
-        let lista = JSON.parse(localStorage.getItem(chave)) || [];
-        
-        // Remove qualquer versão antiga sua pelo username ou ID
-        lista = lista.filter(u => u.username !== "yran_nexus" && u.id !== "001");
-        
-        // Adiciona a versão com a senha nova
-        lista.push(seuPerfilMaster);
-        
-        // Salva de volta na chave correspondente
-        localStorage.setItem(chave, JSON.stringify(lista));
-    });
-
-    console.log("✅ Acesso do Yran (001) atualizado em todo o sistema!");
-}
-
-// Executa a limpeza
-correcaoGeralAcesso();
-
-// 1. Relatório de Faturamento por Operador (Com Filtros)
-function abrirRelatorioFaturamento() {
-    const titulo = document.getElementById("titulo-relatorio");
-    const filtroArea = document.getElementById("filtros-relatorio");
-    
-    if (titulo) titulo.innerText = "FATURAMENTO POR OPERADOR";
-
-    // Cria os inputs de filtro dinamicamente
-    filtroArea.innerHTML = `
-        <div class="container-filtros-relatorio" style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
-            <input type="date" id="data-inicio" style="padding: 5px;">
-            <span>até</span>
-            <input type="date" id="data-fim" style="padding: 5px;">
-            <select id="filtro-op" style="padding: 5px;">
-                <option value="todos">Todos Operadores</option>
-                ${[...new Set(historicoVendas.map(v => v.operador))].map(op => `<option value="${op}">${op}</option>`).join('')}
-            </select>
-            <button onclick="gerarTabelaFaturamento()" style="padding: 5px 15px; background: #1d3557; color: white; border: none; border-radius: 4px; cursor: pointer;">FILTRAR</button>
-        </div>
-    `;
-
-    gerarTabelaFaturamento();
-}
-
-function gerarTabelaFaturamento() {
-    const dInicio = document.getElementById("data-inicio")?.value;
-    const dFim = document.getElementById("data-fim")?.value;
-    const opSelecionado = document.getElementById("filtro-op")?.value;
-
-    const faturamentoPorOperador = historicoVendas.reduce((acc, venda) => {
-        const dataVenda = venda.data.split(',')[0].split('/').reverse().join('-'); 
-        if (dInicio && dataVenda < dInicio) return acc;
-        if (dFim && dataVenda > dFim) return acc;
-        if (opSelecionado !== "todos" && venda.operador !== opSelecionado) return acc;
-        
-        acc[venda.operador] = (acc[venda.operador] || 0) + (parseFloat(venda.total) || 0);
-        return acc;
-    }, {});
-
-    let html = `<table class='tabela-relatorio'>
-                    <thead><tr><th>Operador</th><th>Total Acumulado</th></tr></thead><tbody>`;
-    
-    for (let op in faturamentoPorOperador) {
-        html += `<tr><td><strong>${op}</strong></td><td>R$ ${faturamentoPorOperador[op].toFixed(2).replace(".", ",")}</td></tr>`;
-    }
-    html += "</tbody></table>";
-
-    mostrarModalRelatorio(html);
-}
-
-// 2. Relatório de Movimentação com Diagnóstico (O que você pediu!)
-function abrirRelatorioItensVendidos() {
-    document.getElementById("titulo-relatorio").innerText = "DIAGNÓSTICO DE REPOSIÇÃO";
-    document.getElementById("filtros-relatorio").innerHTML = ""; 
-
-    const contagemItens = {};
-    historicoVendas.forEach(venda => {
-        venda.itens.forEach(item => {
-            contagemItens[item.nome] = (contagemItens[item.nome] || 0) + (parseFloat(item.quantidade) || 0);
-        });
-    });
-
-    let html = `<table class='tabela-relatorio'>
-                    <thead><tr><th>Produto</th><th>Vendidos</th><th>Estoque Atual</th><th>Status</th></tr></thead><tbody>`;
-    
-    for (let produto in contagemItens) {
-        // Busca o produto no seu array principal de 'produtos' para ver o estoque atual
-        const prodNoEstoque = produtos.find(p => p.nome === produto);
-        const estoqueAtual = prodNoEstoque ? prodNoEstoque.estoque : 0;
-        const vendidos = contagemItens[produto];
-
-        // Lógica de diagnóstico
-        let status = "<span style='color: green; font-weight: bold;'>✅ OK</span>";
-        if (estoqueAtual <= 0) {
-            status = "<span style='color: red; font-weight: bold;'>🚨 CRÍTICO (ZERADO)</span>";
-        } else if (estoqueAtual < vendidos) {
-            status = "<span style='color: orange; font-weight: bold;'>⚠️ REPOR EM BREVE</span>";
-        }
-
-        html += `<tr>
-                    <td>${produto}</td>
-                    <td>${vendidos} un</td>
-                    <td>${estoqueAtual} un</td>
-                    <td>${status}</td>
-                </tr>`;
-    }
-    html += "</tbody></table>";
-
-    mostrarModalRelatorio(html);
-}
-
-// 3. Relatório Detalhado de Vendas
-function abrirRelatorioVendasDetalhado() {
-    document.getElementById("titulo-relatorio").innerText = "HISTÓRICO DETALHADO DE VENDAS";
-    document.getElementById("filtros-relatorio").innerHTML = ""; 
-
-    let html = `<table class='tabela-relatorio'>
-                    <thead><tr><th>Data/Hora</th><th>Total</th><th>Forma Pgto</th><th>Troco</th></tr></thead><tbody>`;
-    
-    [...historicoVendas].reverse().forEach(venda => {
-        html += `<tr>
-                    <td>${venda.data}</td>
-                    <td>R$ ${parseFloat(venda.total).toFixed(2).replace(".", ",")}</td>
-                    <td>${venda.formaPagto}</td>
-                    <td>R$ ${parseFloat(venda.troco || 0).toFixed(2).replace(".", ",")}</td>
-                </tr>`;
-    });
-    html += "</tbody></table>";
-
-    mostrarModalRelatorio(html);
-}
-
-// Função auxiliar (Garante que o modal abra)
-function mostrarModalRelatorio(conteudo) {
-    const modal = document.getElementById("modal-relatorios-dash");
-    const container = document.getElementById("conteudo-relatorio");
-    
-    if (modal && container) {
-        container.innerHTML = conteudo;
-        modal.style.display = "flex";
-    }
-}
-
-// Funções de Interface
+/* --- Fornecedores --- */
 function abrirModalFornecedores() {
-    console.log("Tentando abrir o modal..."); 
     const modal = document.getElementById("modal-fornecedores");
     if (modal) {
-        modal.style.display = "flex"; // Força o display flex para centralizar
+        modal.style.display = "flex";
         renderizarFornecedores();
     }
 }
 
-function fecharModalFornecedores() {
+function fecharModalFornecedores() { 
     const modal = document.getElementById("modal-fornecedores");
-    if (modal) {
-        modal.style.display = "none";
-    }
+    if (modal) modal.style.display = "none"; 
 }
 
-// --- 3. AÇÕES ---
 function cadastrarFornecedor() {
     const nome = document.getElementById("forn-nome").value;
     const zap = document.getElementById("forn-zap").value;
@@ -918,30 +763,24 @@ function cadastrarFornecedor() {
         return;
     }
 
-    const zapLimpo = zap.replace(/\D/g, "");
-
     const novoFornecedor = {
         id: Date.now(),
         nome: nome,
-        zap: zapLimpo,
+        zap: zap.replace(/\D/g, ""),
         categoria: categoria
     };
 
     fornecedores.push(novoFornecedor);
-    localStorage.setItem("fornecedores_nexus", JSON.stringify(fornecedores));
+    salvarFornecedores();
     
-    // Limpeza e Atualização
     document.getElementById("forn-nome").value = "";
     document.getElementById("forn-zap").value = "";
-    document.getElementById("form-cadastro-forn").style.display = "none";
-    
     renderizarFornecedores();
 }
 
 function renderizarFornecedores() {
     const container = document.getElementById("container-lista-fornecedores");
     if (!container) return;
-
     container.innerHTML = ""; 
 
     if (fornecedores.length === 0) {
@@ -951,10 +790,10 @@ function renderizarFornecedores() {
 
     fornecedores.forEach(f => {
         container.innerHTML += `
-            <div class="card-fornecedor-item">
-                <strong style="color:#1d3557;">${f.nome}</strong>
-                <p style="font-size:0.8rem; color:#666; margin:5px 0;">${f.categoria}</p>
-                <a href="https://wa.me/55${f.zap}" target="_blank" class="btn-zap-link">
+            <div class="card-fornecedor">
+                <strong style="color:#1d3557; font-size: 1.1rem; text-transform: uppercase;">${f.nome}</strong>
+                <p style="font-size:0.85rem; color:#555; margin:5px 0;">${f.categoria}</p>
+                <a href="https://wa.me/55${f.zap}" target="_blank" class="btn-whatsapp-forn">
                    CHAMA NO ZAP
                 </a>
             </div>
@@ -962,19 +801,16 @@ function renderizarFornecedores() {
     });
 }
 
-function abrirModalCadastroUsuarios() {
-    document.getElementById('modal-cadastro-usuarios').style.display = 'flex';
+/* --- Controle de Equipe --- */
+function abrirModalCadastroUsuarios() { 
+    const modal = document.getElementById('modal-cadastro-usuarios');
+    if (modal) modal.style.display = 'flex'; 
 }
 
-function fecharModalCadastroUsuarios() {
-    document.getElementById('modal-cadastro-usuarios').style.display = 'none';
-    // Limpa os campos ao fechar
-    document.getElementById('cad-nome-completo').value = "";
-    document.getElementById('cad-username').value = "";
-    document.getElementById('cad-password').value = "";
+function fecharModalCadastroUsuarios() { 
+    const modal = document.getElementById('modal-cadastro-usuarios');
+    if (modal) modal.style.display = 'none'; 
 }
-
-// --- JS PARTE II: GESTÃO E INTERFACE ---
 
 function salvarNovoOperador() {
     const nome = document.getElementById('cad-nome-completo').value.trim();
@@ -989,22 +825,72 @@ function salvarNovoOperador() {
 
     let usuariosSistema = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
 
-    // Verificação de duplicidade
-    if (usuariosSistema.find(u => u.login === user)) {
+    if (usuariosSistema.find(u => u.login === user || u.username === user)) {
         alert("Este nome de usuário já está em uso!");
         return;
     }
 
+    let novoIdNum = usuariosSistema.length + 2; 
+    const idGerado = novoIdNum.toString().padStart(3, '0');
+
     const novoUsuario = {
+        id: idGerado,
         nome: nome,
-        login: user, // Salvando como 'login' para padronizar
+        login: user,
+        username: user,
         senha: pass,
-        role: cargo  // 'role' é o padrão que o restante do seu código usa para Admin
+        role: cargo
     };
 
     usuariosSistema.push(novoUsuario);
     localStorage.setItem("usuarios_nexus", JSON.stringify(usuariosSistema));
 
-    alert(`Operador ${nome} cadastrado com sucesso!`);
+    alert(`Operador ${nome} cadastrado com sucesso! ID: ${idGerado}`);
     fecharModalCadastroUsuarios();
 }
+
+/* --- Listeners Globais --- */
+document.addEventListener('keydown', function(event) {
+    if (event.key === "F2") {
+        event.preventDefault();
+        finalizarVenda();
+    }
+});
+
+function atualizarRelogio() {
+    const pRelogio = document.getElementById("relogio-brasilia");
+    if (pRelogio) pRelogio.innerText = new Date().toLocaleString('pt-BR');
+}
+
+function correcaoGeralAcesso() {
+    const seuPerfilMaster = {
+        id: "001",
+        nome: "Yran Sousa Paixão",
+        username: "yran_nexus",
+        login: "yran_nexus",
+        senha: "95362748",
+        role: "admin"
+    };
+
+    ['usuarios', 'usuarios_nexus'].forEach(chave => {
+        let lista = JSON.parse(localStorage.getItem(chave)) || [];
+        lista = lista.filter(u => u.username !== "yran_nexus" && u.id !== "001");
+        lista.push(seuPerfilMaster);
+        localStorage.setItem(chave, JSON.stringify(lista));
+    });
+}
+
+/* --- Inicialização Segura Baseada no Ciclo de Vida --- */
+window.addEventListener('DOMContentLoaded', () => {
+    atualizarRelogio();
+    correcaoGeralAcesso();
+    verificarLoginSalvo();
+
+    // Vinculação explícita de escuta de eventos pelo script
+    const btnEntrar = document.getElementById("btn-entrar");
+    if (btnEntrar) {
+        btnEntrar.addEventListener('click', fazerLogin);
+    }
+    
+    setInterval(atualizarRelogio, 1000);
+});
