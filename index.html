@@ -118,34 +118,35 @@
                 <p style="font-size: 0.75rem;">Gerenciar contatos</p>
             </div>
             <div class="card-nexus-dash" onclick="abrirModalCadastroUsuarios()" style="cursor: pointer;">
-    <div style="font-size: 1.5rem; margin-bottom: 10px;">👤+</div>
-    <h3 style="margin: 0; font-size: 1rem; color: #1d3557; font-family: 'Michroma', sans-serif;">CADASTRAR OPERADOR</h3>
-    <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Adicionar novos usuários ao sistema</p>
-</div>
-            <div class="card-nexus-dash" onclick="abrirModalFrota()" style="cursor: pointer;">
-    <div style="font-size: 1.5rem; margin-bottom: 10px;">🚗</div>
-    <h3 style="margin: 0; font-size: 1rem; color: #1d3557; font-family: 'Michroma', sans-serif;">FROTA DE VEÍCULOS</h3>
-    <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Combustível, motoristas e consultas</p>
-</div>
-        </div>
-    </div>
-
-<div id="modal-relatorios-dash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-    <div style="background: white; width: 90%; max-width: 850px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 85vh; overflow: hidden; display: flex; flex-direction: column;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-            <h2 id="titulo-relatorio" style="color: #1d3557; font-size: 1.2rem;">DETALHES</h2>
-            <button onclick="document.getElementById('modal-relatorios-dash').style.display='none'" style="background: #c0392b; color: white; padding: 5px 15px; border-radius: 5px; font-size: 0.8rem;">FECHAR</button>
-        </div>
-
-        <div id="filtros-relatorio" style="margin-bottom: 15px; display: flex; gap: 10px;"></div>
-
-        <div id="conteudo-relatorio" style="overflow-y: auto; flex-grow: 1;">
+                <div style="font-size: 1.5rem; margin-bottom: 10px;">👤+</div>
+                <h3 style="margin: 0; font-size: 1rem; color: #1d3557; font-family: 'Michroma', sans-serif;">CADASTRAR OPERADOR</h3>
+                <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Adicionar novos usuários ao sistema</p>
             </div>
+            <div class="card-nexus-dash" onclick="abrirModalFrota()" style="cursor: pointer;">
+                <div style="font-size: 1.5rem; margin-bottom: 10px;">🚗</div>
+                <h3 style="margin: 0; font-size: 1rem; color: #1d3557; font-family: 'Michroma', sans-serif;">FROTA DE VEÍCULOS</h3>
+                <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Combustível, motoristas e consultas</p>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="modal-fornecedores" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
+    <!-- ✅ CORREÇÃO: modal-relatorios-dash aparece UMA SÓ VEZ aqui (duplicata removida) -->
+    <div id="modal-relatorios-dash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 20px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px;">
+                <h2 id="titulo-relatorio" style="color: #1d3557; margin: 0; font-family: 'Michroma', sans-serif; font-size: 1.2rem;">RELATÓRIO</h2>
+                <button onclick="document.getElementById('modal-relatorios-dash').style.display='none'" style="background: #e63946; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">FECHAR [X]</button>
+            </div>
+
+            <div id="filtros-relatorio"></div>
+
+            <div id="conteudo-relatorio" style="overflow-y: auto; flex-grow: 1; padding-top: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-fornecedores" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
         <div style="background:white; padding:20px; border-radius:15px; width:90%; max-width:800px; max-height:80vh; overflow-y:auto; position:relative; color: #333;">
             <span onclick="fecharModalFornecedores()" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:28px; font-weight:bold;">&times;</span>
             <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px;">Agenda de Fornecedores</h2>
@@ -162,42 +163,42 @@
     </div>
 
     <div id="modal-cadastro-usuarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
-    <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:500px; position:relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
-        
-        <span onclick="fecharModalCadastroUsuarios()" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px; font-weight:bold; color: #333;">&times;</span>
-        
-        <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 25px; font-size: 1.2rem;">NOVO OPERADOR</h2>
+        <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:500px; position:relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+            
+            <span onclick="fecharModalCadastroUsuarios()" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px; font-weight:bold; color: #333;">&times;</span>
+            
+            <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 25px; font-size: 1.2rem;">NOVO OPERADOR</h2>
 
-        <div style="display: flex; flex-direction: column; gap: 15px;">
-            <div>
-                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME COMPLETO</label>
-                <input type="text" id="cad-nome-completo" placeholder="Ex: João Silva" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME COMPLETO</label>
+                    <input type="text" id="cad-nome-completo" placeholder="Ex: João Silva" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME DE USUÁRIO (LOGIN)</label>
+                    <input type="text" id="cad-username" placeholder="Ex: joao.nexus" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: #666; font-weight: bold;">SENHA DE ACESSO</label>
+                    <input type="password" id="cad-password" placeholder="Digite a senha" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NÍVEL DE ACESSO</label>
+                    <select id="cad-cargo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 5px;">
+                        <option value="operador">Operador (Vendas e Estoque)</option>
+                        <option value="admin">Administrador (Total)</option>
+                    </select>
+                </div>
+
+                <button onclick="salvarNovoOperador()" style="background:#1d3557; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; font-weight: bold; font-family: 'Montserrat', sans-serif; margin-top: 10px; transition: 0.3s;">
+                    FINALIZAR CADASTRO
+                </button>
             </div>
-
-            <div>
-                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NOME DE USUÁRIO (LOGIN)</label>
-                <input type="text" id="cad-username" placeholder="Ex: joao.nexus" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
-            </div>
-
-            <div>
-                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">SENHA DE ACESSO</label>
-                <input type="password" id="cad-password" placeholder="Digite a senha" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
-            </div>
-
-            <div>
-                <label style="font-size: 0.8rem; color: #666; font-weight: bold;">NÍVEL DE ACESSO</label>
-                <select id="cad-cargo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 5px;">
-                    <option value="operador">Operador (Vendas e Estoque)</option>
-                    <option value="admin">Administrador (Total)</option>
-                </select>
-            </div>
-
-            <button onclick="salvarNovoOperador()" style="background:#1d3557; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; font-weight: bold; font-family: 'Montserrat', sans-serif; margin-top: 10px; transition: 0.3s;">
-                FINALIZAR CADASTRO
-            </button>
         </div>
     </div>
-</div>
 
     <div id="container-principal" class="container-principal escondido">
         <div class="coluna-esquerda">
@@ -217,36 +218,37 @@
         </div>
 
         <div class="coluna-direita">
-    <div class="carrinho-container">
-        <h2 style="margin-top: 0; border-bottom: 2px solid #1d3557; padding-bottom: 10px;">Carrinho</h2>
-        <div id="itens-carrinho">
-            <p style="color: #888;">O carrinho está vazio.</p>
-        </div>
-        <div class="total-venda">
-            <strong>TOTAL: R$ <span id="valor-total">0.00</span></strong>
-        </div>
-        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
-            <button onclick="finalizarVenda()" id="btn-finalizar">FINALIZAR VENDA (F2)</button>
-            <button onclick="limparCarrinho()" style="width: 100%;">LIMPAR TUDO</button>
-            <button id="btn-voltar-dash" class="escondido" onclick="voltarAoDashboard()">VOLTAR AO DASHBOARD</button>
+            <div class="carrinho-container">
+                <h2 style="margin-top: 0; border-bottom: 2px solid #1d3557; padding-bottom: 10px;">Carrinho</h2>
+                <div id="itens-carrinho">
+                    <p style="color: #888;">O carrinho está vazio.</p>
+                </div>
+                <div class="total-venda">
+                    <strong>TOTAL: R$ <span id="valor-total">0.00</span></strong>
+                </div>
+                <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+                    <button onclick="finalizarVenda()" id="btn-finalizar">FINALIZAR VENDA (F2)</button>
+                    <button onclick="limparCarrinho()" style="width: 100%;">LIMPAR TUDO</button>
+                    <button id="btn-voltar-dash" class="escondido" onclick="voltarAoDashboard()">VOLTAR AO DASHBOARD</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="modal-autorizacao" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: none; align-items: center; justify-content: center;">
-    <div style="background: white; padding: 30px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h3 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px;">🔒 AUTORIZAÇÃO</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 15px; color: #666;">Ação restrita ao Administrador.</p>
-        
-        <input type="text" id="auth-id-admin" placeholder="ID do Admin (ex: 001)" style="width: 100%; margin-bottom: 10px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
-        <input type="password" id="auth-senha-admin" placeholder="Senha do Admin" style="width: 100%; margin-bottom: 20px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
-        
-        <div style="display: flex; gap: 10px;">
-            <button id="confirmar-auth" style="flex: 2; background: #1d3557; color: white;">CONFIRMAR</button>
-            <button onclick="fecharModalAuth()" style="flex: 1; background: #eee; color: #333;">VOLTAR</button>
+    <div id="modal-autorizacao" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: none; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h3 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px;">🔒 AUTORIZAÇÃO</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px; color: #666;">Ação restrita ao Administrador.</p>
+            
+            <input type="text" id="auth-id-admin" placeholder="ID do Admin (ex: 001)" style="width: 100%; margin-bottom: 10px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+            <input type="password" id="auth-senha-admin" placeholder="Senha do Admin" style="width: 100%; margin-bottom: 20px; padding: 12px; border: 2px solid #eee; border-radius: 8px;">
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="confirmar-auth" style="flex: 2; background: #1d3557; color: white;">CONFIRMAR</button>
+                <button onclick="fecharModalAuth()" style="flex: 1; background: #eee; color: #333;">VOLTAR</button>
+            </div>
         </div>
     </div>
-</div>
 
     <div id="modal-pagamento" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; display: none; align-items: center; justify-content: center;">
         <div style="background: white; padding: 40px; border-radius: 20px; width: 450px;">
@@ -256,19 +258,19 @@
             
             <label>Forma de Pagamento:</label>
             <div style="margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-    <label>
-        <input type="radio" name="forma-pagto" value="Dinheiro" checked onclick="selecionarFormaPagamento('Dinheiro')"> 💵 Dinheiro
-    </label>
-    <label>
-        <input type="radio" name="forma-pagto" value="Cartão Débito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Débito
-    </label>
-    <label>
-        <input type="radio" name="forma-pagto" value="Cartão Crédito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Crédito
-    </label>
-    <label>
-        <input type="radio" name="forma-pagto" value="Pix" onclick="selecionarFormaPagamento('Pix')"> 📱 Pix
-    </label>
-</div>
+                <label>
+                    <input type="radio" name="forma-pagto" value="Dinheiro" checked onclick="selecionarFormaPagamento('Dinheiro')"> 💵 Dinheiro
+                </label>
+                <label>
+                    <input type="radio" name="forma-pagto" value="Cartão Débito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Débito
+                </label>
+                <label>
+                    <input type="radio" name="forma-pagto" value="Cartão Crédito" onclick="selecionarFormaPagamento('Cartão')"> 💳 Crédito
+                </label>
+                <label>
+                    <input type="radio" name="forma-pagto" value="Pix" onclick="selecionarFormaPagamento('Pix')"> 📱 Pix
+                </label>
+            </div>
 
             <div id="secao-troco">
                 <label>Valor Pago pelo Cliente:</label>
@@ -303,7 +305,7 @@
                         </tr>
                     </thead>
                     <tbody id="lista-estoque">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
             <div id="rodape-estoque-admin" style="padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end;">
@@ -341,51 +343,38 @@
         <span>OPERADOR: <span id="nome-operador-final">---</span></span>
     </div>
 
-    <div id="modal-relatorios-dash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-    <div style="background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 20px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px;">
-            <h2 id="titulo-relatorio" style="color: #1d3557; margin: 0; font-family: 'Michroma', sans-serif; font-size: 1.2rem;">RELATÓRIO</h2>
-            <button onclick="document.getElementById('modal-relatorios-dash').style.display='none'" style="background: #e63946; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">FECHAR [X]</button>
-        </div>
-
-        <div id="filtros-relatorio"></div>
-
-        <div id="conteudo-relatorio" style="overflow-y: auto; flex-grow: 1; padding-top: 10px;">
+    <!-- ✅ CORREÇÃO: modal-frota movido para FORA do container-principal -->
+    <!-- Agora ele fica no nível raiz do body, acessível de qualquer tela -->
+    <div id="modal-frota" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
+        <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:850px; max-height:85vh; overflow-y:auto; position:relative; color: #333;">
+            <span onclick="fecharModalFrota()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:28px; font-weight:bold;">&times;</span>
+            <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px; font-size: 1.2rem;">Controle de Frota de Veículos</h2>
+            
+            <div style="background:#f1f4f8; padding:20px; border-radius:10px; margin-bottom:20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                <div style="flex: 2; min-width: 150px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #555;">MODELO DO VEÍCULO</label>
+                    <input type="text" id="frota-modelo" placeholder="Ex: Fiat Uno" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #555;">PLACA</label>
+                    <input type="text" id="frota-placa" placeholder="ABC1D23" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
+                </div>
+                <div style="flex: 2; min-width: 150px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #555;">MOTORISTA DO DIA</label>
+                    <input type="text" id="frota-motorista" placeholder="Nome do motorista" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
+                </div>
+                <div style="flex: 1; min-width: 90px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #555;">GASOLINA (%)</label>
+                    <input type="number" id="frota-gasolina" min="0" max="100" placeholder="100" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
+                </div>
+                <button onclick="salvarVeiculo()" style="background:#1d3557; color:white; border:none; padding:11px 25px; border-radius:5px; cursor:pointer; font-weight:bold; height:41px;">Salvar</button>
             </div>
+
+            <h3 style="font-size: 1rem; color: #1d3557; margin-bottom: 15px;">Veículos Monitorados</h3>
+            <div id="container-lista-frota" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
+            </div>
+        </div> 
     </div>
-</div>
-
-<div id="modal-frota" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center;">
-    <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:850px; max-height:85vh; overflow-y:auto; position:relative; color: #333;">
-        <span onclick="fecharModalFrota()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:28px; font-weight:bold;">&times;</span>
-        <h2 style="font-family: 'Michroma', sans-serif; color: #1d3557; margin-bottom: 20px; font-size: 1.2rem;">Controle de Frota de Veículos</h2>
-        
-        <div style="background:#f1f4f8; padding:20px; border-radius:10px; margin-bottom:20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-            <div style="flex: 2; min-width: 150px;">
-                <label style="font-size: 0.75rem; font-weight: bold; color: #555;">MODELO DO VEÍCULO</label>
-                <input type="text" id="frota-modelo" placeholder="Ex: Fiat Uno" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
-            </div>
-            <div style="flex: 1; min-width: 100px;">
-                <label style="font-size: 0.75rem; font-weight: bold; color: #555;">PLACA</label>
-                <input type="text" id="frota-placa" placeholder="ABC1D23" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
-            </div>
-            <div style="flex: 2; min-width: 150px;">
-                <label style="font-size: 0.75rem; font-weight: bold; color: #555;">MOTORISTA DO DIA</label>
-                <input type="text" id="frota-motorista" placeholder="Nome do motorista" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
-            </div>
-            <div style="flex: 1; min-width: 90px;">
-                <label style="font-size: 0.75rem; font-weight: bold; color: #555;">GASOLINA (%)</label>
-                <input type="number" id="frota-gasolina" min="0" max="100" placeholder="100" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-top:4px;">
-            </div>
-            <button onclick="salvarVeiculo()" style="background:#1d3557; color:white; border:none; padding:11px 25px; border-radius:5px; cursor:pointer; font-weight:bold; height:41px;">Salvar</button>
-        </div>
-
-        <h3 style="font-size: 1rem; color: #1d3557; margin-bottom: 15px;">Veículos Monitorados</h3>
-        <div id="container-lista-frota" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
-            </div>
-    </div> 
-</div>
 
     <div id="relogio-brasilia"></div>
 

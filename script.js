@@ -102,7 +102,8 @@ function adicionarAoCarrinho(id) {
 
         const itemExistente = carrinho.find(item => item.id === id);
         if (itemExistente) {
-            itemExistente.quantidade += grandmother;
+            // ✅ BUG 1 CORRIGIDO: era "grandmother", agora é "quantidade"
+            itemExistente.quantidade += quantidade;
             itemExistente.subtotal = itemExistente.quantidade * itemExistente.precoUnitario;
         } else {
             carrinho.push({
@@ -367,7 +368,6 @@ async function fazerLogin() {
     const senhaDigitada = inputPass.value.trim();
 
     try {
-        // Envia o login e a senha para a nossa API Node.js na porta 3000
         const resposta = await fetch('http://localhost:3000/api/login', {
             method: 'POST',
             headers: {
@@ -380,7 +380,6 @@ async function fazerLogin() {
 
         if (dados.sucesso) {
             operadorLogado = dados.usuario;
-            // Salva a sessão no navegador para o sistema saber quem está operando o PDV
             localStorage.setItem("operador_atual", JSON.stringify(dados.usuario));
             
             alert("Acesso autorizado! Bem-vindo, " + dados.usuario.nome);
@@ -392,10 +391,8 @@ async function fazerLogin() {
             if (dash) dash.classList.remove("escondido");
             
             atualizarDadosDashboard();
-            // Controla a exibição do botão logo após o login manual com sucesso
             controlarBotaoPainel();
         } else {
-            // Mensagem caso o banco de dados não encontre o login/senha
             alert(dados.mensagem);
         }
     } catch (erro) {
@@ -415,7 +412,6 @@ function verificarLoginSalvo() {
         if (dash) dash.classList.remove("escondido");
         
         atualizarDadosDashboard();
-        // Controla a exibição do botão caso o usuário já estivesse logado
         controlarBotaoPainel();
     }
 }
@@ -425,7 +421,6 @@ function controlarBotaoPainel() {
     const btnVoltar = document.getElementById("btn-voltar-dash");
     if (!btnVoltar) return;
 
-    // Se o operador for admin, remove o "escondido", caso contrário, oculta
     if (operadorLogado && operadorLogado.role === "admin") {
         btnVoltar.classList.remove("escondido");
     } else {
@@ -438,9 +433,9 @@ function voltarAoDashboard() {
     const vendas = document.getElementById("container-principal");
     const backdrop = document.getElementById("login-backdrop");
 
-    if (dash) dash.classList.remove("escondido");      // Mostra o Dashboard
-    if (vendas) vendas.classList.add("escondido");     // ESCONDE as Vendas/Carrinho
-    if (backdrop) backdrop.classList.add("escondido"); // Garante que o login suma
+    if (dash) dash.classList.remove("escondido");
+    if (vendas) vendas.classList.add("escondido");
+    if (backdrop) backdrop.classList.add("escondido");
 }
 
 function fazerLogout() {
@@ -452,8 +447,8 @@ function irParaVendas() {
     const dash = document.getElementById("dashboard-admin");
     const vendas = document.getElementById("container-principal");
 
-    if (dash) dash.classList.add("escondido");         // ESCONDE o Dashboard
-    if (vendas) vendas.classList.remove("escondido");   // Mostra as Vendas/Carrinho
+    if (dash) dash.classList.add("escondido");
+    if (vendas) vendas.classList.remove("escondido");
 }
 
 function irParaDashboard() {
@@ -712,8 +707,9 @@ function fecharModalEstoque() {
 
 function filtrarEstoque() {
     const busca = document.getElementById("busca-estoque").value.toLowerCase();
+    // ✅ BUG 2 CORRIGIDO: era "linea", agora é "linha"
     document.querySelectorAll("#lista-estoque tr").forEach(linha => {
-        linha.style.display = linea.innerText.toLowerCase().includes(busca) ? "" : "none";
+        linha.style.display = linha.innerText.toLowerCase().includes(busca) ? "" : "none";
     });
 }
 
@@ -899,21 +895,15 @@ function atualizarRelogio() {
 }
 
 function correcaoGeralAcesso() {
-    const seuPerfilMaster = {
-        id: "001",
-        nome: "Yran Sousa Paixão",
-        username: "yran_nexus",
-        login: "yran_nexus",
-        senha: "95362748",
-        role: "admin"
-    };
-
-    ['usuarios', 'usuarios_nexus'].forEach(chave => {
-        let lista = JSON.parse(localStorage.getItem(chave)) || [];
-        lista = lista.filter(u => u.username !== "yran_nexus" && u.id !== "001");
-        lista.push(seuPerfilMaster);
-        localStorage.setItem(chave, JSON.stringify(lista));
-    });
+    // ✅ BUG 3 CORRIGIDO: senha removida do código-fonte
+    // O usuário administrador master deve ser criado diretamente no banco de dados.
+    // Execute este comando SQL uma vez no seu PostgreSQL para criar seu acesso:
+    //
+    // INSERT INTO usuarios (nome, login, senha, role)
+    // VALUES ('Yran Sousa Paixão', 'yran_nexus', 'SUA_SENHA_AQUI', 'admin')
+    // ON CONFLICT (login) DO NOTHING;
+    //
+    console.log("NEXUS PDV iniciado. Autenticação via banco de dados PostgreSQL.");
 }
 
 /* --- Inicialização Segura Baseada no Ciclo de Vida --- */
@@ -926,15 +916,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* --- Módulo de Controle de Frota (Integração PostgreSQL) --- */
-
 function abrirModalFrota() {
     document.getElementById("modal-frota").style.display = "flex";
-    buscarVeiculos(); // Carrega a lista atualizada direto do banco
+    buscarVeiculos();
 }
 
 function fecharModalFrota() {
     document.getElementById("modal-frota").style.display = "none";
-    // Limpa os campos do formulário
     document.getElementById("frota-modelo").value = "";
     document.getElementById("frota-placa").value = "";
     document.getElementById("frota-motorista").value = "";
@@ -955,26 +943,22 @@ async function buscarVeiculos() {
         }
 
         veiculos.forEach(v => {
-            // Define uma cor de alerta visual para o tanque de gasolina
-            let corCombustivel = "#2ecc71"; // Verde
-            if (v.combustivel_atual <= 25) corCombustivel = "#e74c3c"; // Vermelho (Reserva)
-            else if (v.combustivel_atual <= 50) corCombustivel = "#f39c12"; // Amarelo
+            let corCombustivel = "#2ecc71";
+            if (v.combustivel_atual <= 25) corCombustivel = "#e74c3c";
+            else if (v.combustivel_atual <= 50) corCombustivel = "#f39c12";
 
             const card = document.createElement("div");
             card.style = "background: #fdfdfd; border: 1px solid #e1e8ed; border-left: 5px solid #1d3557; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative;";
             card.innerHTML = `
                 <strong style="font-size: 1.1rem; color: #1d3557; text-transform: uppercase;">${v.modelo}</strong>
                 <span style="display: block; font-size: 0.8rem; color: #7f8c8d; font-weight: bold; margin-bottom: 8px;">Placa: ${v.placa}</span>
-                
                 <div style="margin-bottom: 6px; font-size: 0.9rem;">
                     <strong>👤 Condutor:</strong> <span style="color:#555;">${v.motorista_dia || 'Não designado'}</span>
                 </div>
-                
                 <div style="font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
                     <strong>⛽ Combustível:</strong> 
                     <span style="color: ${corCombustivel}; font-weight: bold;">${parseFloat(v.combustivel_atual)}%</span>
                 </div>
-                
                 <div style="margin-top: 10px; display: flex; gap: 5px;">
                     <button onclick="carregarDadosEdicao('${v.modelo}', '${v.placa}', '${v.motorista_dia}', ${v.combustivel_atual})" style="background: #34495e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">Editar</button>
                 </div>
@@ -1011,8 +995,7 @@ async function salvarVeiculo() {
 
         const dados = await resposta.json();
         if (dados.sucesso) {
-            buscarVeiculos(); // Recarrega a lista
-            // Limpa as entradas
+            buscarVeiculos();
             document.getElementById("frota-modelo").value = "";
             document.getElementById("frota-placa").value = "";
             document.getElementById("frota-motorista").value = "";
@@ -1029,4 +1012,51 @@ function carregarDadosEdicao(modelo, placa, motorista, gasolina) {
     document.getElementById("frota-placa").value = placa;
     document.getElementById("frota-motorista").value = motorista === "Não designado" ? "" : motorista;
     document.getElementById("frota-gasolina").value = gasolina;
+}
+
+/* --- Formulário de Cadastro na Tela de Login --- */
+function alternarFormularios(tipo) {
+    const formLogin = document.getElementById("form-login");
+    const formCadastro = document.getElementById("form-cadastro");
+    if (tipo === 'cadastro') {
+        if (formLogin) formLogin.style.display = "none";
+        if (formCadastro) formCadastro.style.display = "block";
+    } else {
+        if (formLogin) formLogin.style.display = "block";
+        if (formCadastro) formCadastro.style.display = "none";
+    }
+}
+
+function cadastrarNovoUsuario() {
+    const nome = document.getElementById("novo-nome-usuario").value.trim();
+    const user = document.getElementById("novo-usuario").value.trim();
+    const pass = document.getElementById("nova-senha").value.trim();
+    const cargo = document.getElementById("novo-cargo-usuario").value;
+
+    if (!nome || !user || !pass) {
+        alert("Por favor, preencha todos os campos!");
+        return;
+    }
+
+    let usuariosSistema = JSON.parse(localStorage.getItem("usuarios_nexus")) || [];
+
+    if (usuariosSistema.find(u => u.login === user)) {
+        alert("Este nome de usuário já está em uso!");
+        return;
+    }
+
+    const idGerado = (usuariosSistema.length + 2).toString().padStart(3, '0');
+
+    usuariosSistema.push({
+        id: idGerado,
+        nome: nome,
+        login: user,
+        username: user,
+        senha: pass,
+        role: cargo
+    });
+
+    localStorage.setItem("usuarios_nexus", JSON.stringify(usuariosSistema));
+    alert(`Usuário ${nome} cadastrado! ID: ${idGerado}`);
+    alternarFormularios('login');
 }
