@@ -160,33 +160,71 @@ function adicionarAoCarrinho(id) {
         nexusErro(`O produto "${produto.nome}" está esgotado!`, "ESTOQUE ESGOTADO");
         return;
     }
+}
 
-    let qtd = prompt(`Quantas unidades de ${produto.nome} deseja adicionar?`, "1");
+   let produtoAguardandoQtd = null;
 
-    if (qtd !== null && qtd > 0) {
-        let quantidade = parseInt(qtd);
+function pedirQuantidadeProduto(produto) {
+console.log("O botão foi clicado! Produto recebido:", produto);
+    produtoAguardandoQtd = produto;
+    
+    document.getElementById("qtd-modal-titulo").innerText = "Adicionar " + produto.nome;
+    document.getElementById("qtd-modal-mensagem").innerText = "Estoque disponível: " + produto.estoque;
+    document.getElementById("qtd-modal-input").value = 1;
+    
+    // Abre o modal na tela
+    document.getElementById("modal-quantidade").style.display = "flex";
+    
+    // Foca no input
+    document.getElementById("qtd-modal-input").focus();
+}
 
-        if (quantidade > produto.estoque) {
-            nexusErro("Quantidade superior ao estoque disponível!", "ESTOQUE INSUFICIENTE");
-            return;
-        }
+function fecharModalQuantidade() {
+    document.getElementById("modal-quantidade").style.display = "none";
+    produtoAguardandoQtd = null; // Limpa o produto da memória
+}
 
-        const itemExistente = carrinho.find(item => item.id === id);
-        if (itemExistente) {
-            // BUG 1 CORRIGIDO: era "grandmother"
-            itemExistente.quantidade += quantidade;
-            itemExistente.subtotal = itemExistente.quantidade * itemExistente.precoUnitario;
-        } else {
-            carrinho.push({
-                id: produto.id,
-                nome: produto.nome,
-                quantidade: quantidade,
-                precoUnitario: produto.preco,
-                subtotal: produto.preco * quantidade
-            });
-        }
-        atualizarCarrinhoVisual();
+function confirmarQuantidade() {
+    // Pega o valor digitado no input do modal
+    let qtdDigitada = document.getElementById("qtd-modal-input").value;
+    let quantidade = parseInt(qtdDigitada);
+
+    // Validação inicial
+    if (isNaN(quantidade) || quantidade <= 0) {
+        nexusErro("Por favor, informe uma quantidade válida!", "VALOR INCORRETO");
+        return;
     }
+
+    // Pega o produto que deixamos guardado na etapa 1
+    const produto = produtoAguardandoQtd;
+
+    // A SUA VALIDAÇÃO DE ESTOQUE PERMANECE AQUI
+    if (quantidade > produto.estoque) {
+        nexusErro("Quantidade superior ao estoque disponível!", "ESTOQUE INSUFICIENTE");
+        return;
+    }
+
+    // A SUA LÓGICA DO CARRINHO PERMANECE AQUI
+    const itemExistente = carrinho.find(item => item.id === produto.id);
+    if (itemExistente) {
+        itemExistente.quantidade += quantidade;
+        itemExistente.subtotal = itemExistente.quantidade * itemExistente.precoUnitario;
+    } else {
+        carrinho.push({
+            id: produto.id,
+            nome: produto.nome,
+            quantidade: quantidade,
+            precoUnitario: produto.preco,
+            subtotal: produto.preco * quantidade
+        });
+    }
+
+    // Atualiza a tela do caixa/PDV com os novos dados do carrinho
+            atualizarCarrinhoVisual();
+    
+
+    // Esconde o modal de volta
+    fecharModalQuantidade();
 }
 
 function atualizarCarrinhoVisual() {

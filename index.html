@@ -519,6 +519,22 @@
         </div>
     </div>
 
+    <!-- MODAL: PERGUNTAR QUANTIDADE -->
+<div id="modal-quantidade" class="modal-overlay" style="display: none;">
+    <div class="modal-content form-produto-content">
+        <h3 id="qtd-modal-titulo">Adicionar ao Carrinho</h3>
+        <p id="qtd-modal-mensagem" style="margin: 10px 0; font-size: 0.9rem; color: #555;">Quantas unidades?</p>
+        
+        <input type="number" id="qtd-modal-input" min="1" value="1" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 10px;">
+        
+        <div style="display: flex; gap: 10px;">
+    <!-- Adicionamos o onclick="confirmarQuantidade()" aqui -->
+    <button type="button" id="btn-confirmar-qtd" onclick="confirmarQuantidade()" style="background: #1d3557; flex: 1;">Confirmar</button>
+    <button type="button" onclick="fecharModalQuantidade()" style="background: #e74c3c; flex: 1;">Cancelar</button>
+</div>
+    </div>
+</div>
+
     <div id="relogio-brasilia"></div>
     <script src="script.js" defer></script>
 </body>
